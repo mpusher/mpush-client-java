@@ -1,5 +1,6 @@
 package com.shinemo.mpush.client;
 
+import com.shinemo.mpush.api.Client;
 import com.shinemo.mpush.util.DefaultLogger;
 import org.junit.Test;
 
@@ -16,7 +17,7 @@ public class MPushClientTest {
 
     @Test
     public void testStart() throws Exception {
-        ClientConfig config = ClientConfig
+        Client client = ClientConfig
                 .build()
                 .setPublicKey(publicKey)
                 .setAllotServer(allocServer)
@@ -24,12 +25,12 @@ public class MPushClientTest {
                 .setOsName("Android")
                 .setOsVersion("6.0")
                 .setClientVersion("2.0")
-                .setUserId("user_0")
+                .setUserId("doctor43test")
                 .setSessionStorageDir("D:\\")
                 .setLogger(new DefaultLogger())
                 .setLogEnabled(true)
-                .setEnableHttpProxy(false);
-        MPushClient client = new MPushClient(config);
+                .setEnableHttpProxy(false)
+                .create();
         client.start();
         LockSupport.park();
     }
