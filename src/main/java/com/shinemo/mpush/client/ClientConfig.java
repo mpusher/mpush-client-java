@@ -61,7 +61,7 @@ public final class ClientConfig {
 
     public ClientConfig setLogger(Logger logger) {
         this.logger = logger;
-        this.logger.enable(logEnabled);
+        this.getLogger().enable(logEnabled);
         return this;
     }
 

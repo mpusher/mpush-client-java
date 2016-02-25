@@ -23,9 +23,9 @@ public final class FileSessionStorage implements SessionStorage {
         File file = new File(rootDir, fileName);
         FileOutputStream out = null;
         try {
-            if (!file.exists()) file.mkdirs();
+            if (!file.exists()) file.getParentFile().mkdirs();
             else if (file.canWrite()) file.delete();
-            out = new FileOutputStream(new File(rootDir, fileName));
+            out = new FileOutputStream(file);
             out.write(sessionContext.getBytes(Constants.UTF_8));
         } catch (Exception e) {
             ClientConfig.I.getLogger().e(e, "save session context ex, session=%s, rootDir=%s"
