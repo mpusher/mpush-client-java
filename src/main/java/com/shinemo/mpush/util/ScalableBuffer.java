@@ -5,17 +5,17 @@ import java.nio.*;
 /**
  * Created by ohun on 2016/1/21.
  */
-public final class WrappedByteBuffer {
+public final class ScalableBuffer {
     private ByteBuffer tmpNioBuf;
 
-    public static WrappedByteBuffer allocate(int capacity) {
-        WrappedByteBuffer buffer = new WrappedByteBuffer();
+    public static ScalableBuffer allocate(int capacity) {
+        ScalableBuffer buffer = new ScalableBuffer();
         buffer.tmpNioBuf = ByteBuffer.allocate(capacity);
         return buffer;
     }
 
-    public static WrappedByteBuffer wrap(byte[] array) {
-        WrappedByteBuffer buffer = new WrappedByteBuffer();
+    public static ScalableBuffer wrap(byte[] array) {
+        ScalableBuffer buffer = new ScalableBuffer();
         buffer.tmpNioBuf = ByteBuffer.wrap(array);
         return buffer;
     }
@@ -28,7 +28,7 @@ public final class WrappedByteBuffer {
         return array;
     }
 
-    public WrappedByteBuffer get(byte[] array) {
+    public ScalableBuffer get(byte[] array) {
         tmpNioBuf.get(array);
         return this;
     }
@@ -101,12 +101,12 @@ public final class WrappedByteBuffer {
         return tmpNioBuf;
     }
 
-    public WrappedByteBuffer clear() {
+    public ScalableBuffer clear() {
         tmpNioBuf.clear();
         return this;
     }
 
-    public WrappedByteBuffer flip() {
+    public ScalableBuffer flip() {
         tmpNioBuf.flip();
         return this;
     }

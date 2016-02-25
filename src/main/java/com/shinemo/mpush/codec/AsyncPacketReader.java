@@ -6,9 +6,8 @@ import com.shinemo.mpush.api.PacketReader;
 import com.shinemo.mpush.api.PacketReceiver;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.protocol.Packet;
-import com.shinemo.mpush.util.thread.ExecutorManager;
 import com.shinemo.mpush.util.thread.NamedThreadFactory;
-import com.shinemo.mpush.util.WrappedByteBuffer;
+import com.shinemo.mpush.util.ScalableBuffer;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -23,7 +22,7 @@ public final class AsyncPacketReader implements PacketReader, Runnable {
     private final NamedThreadFactory threadFactory = new NamedThreadFactory(READ_THREAD_NAME);
     private final Connection connection;
     private final PacketReceiver receiver;
-    private final WrappedByteBuffer buffer;
+    private final ScalableBuffer buffer;
     private final Logger logger;
 
     private Thread thread;
@@ -31,7 +30,7 @@ public final class AsyncPacketReader implements PacketReader, Runnable {
     public AsyncPacketReader(Connection connection, PacketReceiver receiver) {
         this.connection = connection;
         this.receiver = receiver;
-        this.buffer = WrappedByteBuffer.allocate(Short.MAX_VALUE);//默认读buffer大小为32k
+        this.buffer = ScalableBuffer.allocate(Short.MAX_VALUE);//默认读buffer大小为32k
         this.logger = ClientConfig.I.getLogger();
     }
 

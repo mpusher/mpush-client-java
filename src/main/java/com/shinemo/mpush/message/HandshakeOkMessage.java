@@ -3,7 +3,7 @@ package com.shinemo.mpush.message;
 
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.protocol.Packet;
-import com.shinemo.mpush.util.WrappedByteBuffer;
+import com.shinemo.mpush.util.ScalableBuffer;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -34,7 +34,7 @@ public final class HandshakeOkMessage extends ByteBufMessage {
     }
 
     @Override
-    public void encode(WrappedByteBuffer body) {
+    public void encode(ScalableBuffer body) {
         encodeBytes(body, serverKey);
         encodeString(body, serverHost);
         encodeLong(body, serverTime);

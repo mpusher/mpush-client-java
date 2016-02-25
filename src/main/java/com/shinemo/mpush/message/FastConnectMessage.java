@@ -4,7 +4,7 @@ package com.shinemo.mpush.message;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.api.protocol.Packet;
-import com.shinemo.mpush.util.WrappedByteBuffer;
+import com.shinemo.mpush.util.ScalableBuffer;
 
 import java.nio.ByteBuffer;
 
@@ -34,7 +34,7 @@ public final class FastConnectMessage extends ByteBufMessage {
     }
 
     @Override
-    public void encode(WrappedByteBuffer body) {
+    public void encode(ScalableBuffer body) {
         encodeString(body, sessionId);
         encodeString(body, deviceId);
         encodeInt(body, minHeartbeat);
