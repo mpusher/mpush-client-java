@@ -26,7 +26,7 @@ public class MPushClientTest {
                 .setOsVersion("6.0")
                 .setClientVersion("2.0")
                 .setUserId("doctor43test")
-                .setSessionStorageDir("D:\\")
+                .setSessionStorageDir(getClass().getResource("/").getFile())
                 .setLogger(new DefaultLogger())
                 .setLogEnabled(true)
                 .setEnableHttpProxy(false)
