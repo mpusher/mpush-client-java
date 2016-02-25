@@ -11,8 +11,6 @@ import java.nio.ByteBuffer;
  * Created by ohun on 2015/12/28.
  */
 public final class FastConnectOkMessage extends ByteBufMessage {
-    public String serverHost;
-    public long serverTime;
     public int heartbeat;
 
     public FastConnectOkMessage(Packet message, Connection connection) {
@@ -25,27 +23,12 @@ public final class FastConnectOkMessage extends ByteBufMessage {
 
     @Override
     public void decode(ByteBuffer body) {
-        serverHost = decodeString(body);
-        serverTime = decodeLong(body);
         heartbeat = decodeInt(body);
     }
 
     @Override
     public void encode(ScalableBuffer body) {
-        encodeString(body, serverHost);
-        encodeLong(body, serverTime);
         encodeInt(body, heartbeat);
-    }
-
-
-    public FastConnectOkMessage setServerHost(String serverHost) {
-        this.serverHost = serverHost;
-        return this;
-    }
-
-    public FastConnectOkMessage setServerTime(long serverTime) {
-        this.serverTime = serverTime;
-        return this;
     }
 
     public FastConnectOkMessage setHeartbeat(int heartbeat) {
@@ -56,9 +39,7 @@ public final class FastConnectOkMessage extends ByteBufMessage {
     @Override
     public String toString() {
         return "FastConnectOkMessage{" +
-                "serverHost='" + serverHost + '\'' +
-                ", serverTime=" + serverTime +
-                ", heartbeat=" + heartbeat +
+                "heartbeat=" + heartbeat +
                 '}';
     }
 }

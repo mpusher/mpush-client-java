@@ -247,7 +247,7 @@ public final class MPushClient implements Client {
     @Override
     public void stop() {
         connLock.lock();
-        logger.w("client shutdown !!!, state=" + clientState.get());
+        logger.w("client shutdown !!!, state=%s", clientState.get());
         autoRestart = false;
         if (clientState.get() != State.Shutdown) {
             clientState.set(State.Shutdown);
@@ -289,7 +289,7 @@ public final class MPushClient implements Client {
 
         if (connection.isReadTimeout()) {
             hbTimeoutTimes++;
-            logger.w("heartbeat timeout times=" + hbTimeoutTimes);
+            logger.w("heartbeat timeout times=%s", hbTimeoutTimes);
             return false;
         } else {
             hbTimeoutTimes = 0;
@@ -313,7 +313,8 @@ public final class MPushClient implements Client {
 
         PersistentSession session = PersistentSession.decode(ss);
         if (session == null || session.isExpired()) {
-            logger.w("fast connect failure session expired, session=" + session);
+            storage.clearSession();
+            logger.w("fast connect failure session expired, session=%s", session);
             handshake();
             return;
         }
@@ -325,7 +326,7 @@ public final class MPushClient implements Client {
         message.minHeartbeat = config.getMinHeartbeat();
         message.sendRaw();
         connection.getSessionContext().changeCipher(session.cipher);
-        logger.w("do fast connect, message=" + message);
+        logger.w("do fast connect, message=%s", message);
     }
 
     @Override
@@ -343,7 +344,7 @@ public final class MPushClient implements Client {
         message.minHeartbeat = config.getMinHeartbeat();
         message.send();
         context.changeCipher(new AesCipher(message.clientKey, message.iv));
-        logger.w("do handshake, message=" + message);
+        logger.w("do handshake, message=%s", message);
     }
 
     @Override
@@ -360,7 +361,7 @@ public final class MPushClient implements Client {
                 .buildBind(connection)
                 .setUserId(userId)
                 .send();
-        logger.w("do bind user, userId=" + userId);
+        logger.w("do bind user, userId=%s", userId);
     }
 
     @Override
@@ -376,7 +377,7 @@ public final class MPushClient implements Client {
                 .buildUnbind(connection)
                 .setUserId(userId)
                 .send();
-        logger.w("do unbind user, userId=" + userId);
+        logger.w("do unbind user, userId=%s", userId);
     }
 
     @Override

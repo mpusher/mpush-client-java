@@ -24,7 +24,9 @@ public final class ErrorMessageHandler extends BaseMessageHandler<ErrorMessage> 
         logger.w("receive an error message=%s", message);
         if (message.cmd == Command.FAST_CONNECT.cmd) {
             ClientConfig.I.getSessionStorage().clearSession();
+            message.getConnection().getClient().handshake();
+        } else {
+            message.getConnection().reconnect();
         }
-        message.getConnection().reconnect();
     }
 }

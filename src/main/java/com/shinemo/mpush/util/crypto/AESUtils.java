@@ -24,7 +24,7 @@ public final class AESUtils {
             cipher.init(Cipher.ENCRYPT_MODE, key, zeroIv);
             return cipher.doFinal(data);
         } catch (Exception e) {
-            ClientConfig.I.getLogger().e(e, "encrypt ex, decryptKey=" + encryptKey);
+            ClientConfig.I.getLogger().e(e, "encrypt ex, decryptKey=%s", encryptKey);
         }
         return Constants.EMPTY_BYTES;
     }
@@ -37,7 +37,7 @@ public final class AESUtils {
             cipher.init(Cipher.DECRYPT_MODE, key, zeroIv);
             return cipher.doFinal(data);
         } catch (Exception e) {
-            ClientConfig.I.getLogger().e(e, "decrypt ex, decryptKey=" + decryptKey);
+            ClientConfig.I.getLogger().e(e, "decrypt ex, decryptKey=%s", decryptKey);
         }
         return Constants.EMPTY_BYTES;
     }

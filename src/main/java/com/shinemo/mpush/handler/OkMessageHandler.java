@@ -1,10 +1,10 @@
 package com.shinemo.mpush.handler;
 
 
-import com.shinemo.mpush.client.ClientConfig;
 import com.shinemo.mpush.api.Logger;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.protocol.Packet;
+import com.shinemo.mpush.client.ClientConfig;
 import com.shinemo.mpush.message.OkMessage;
 
 /**
@@ -20,6 +20,6 @@ public final class OkMessageHandler extends BaseMessageHandler<OkMessage> {
 
     @Override
     public void handle(OkMessage message) {
-        logger.w("receive an ok message=" + message);
+        logger.w("receive an ok message=%s", message);
     }
 }

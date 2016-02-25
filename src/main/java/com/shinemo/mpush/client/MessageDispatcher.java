@@ -45,13 +45,13 @@ public final class MessageDispatcher implements PacketReceiver {
                     try {
                         handler.handle(packet, connection);
                     } catch (Throwable throwable) {
-                        logger.e(throwable, "handle message error, packet=" + packet);
+                        logger.e(throwable, "handle message error, packet=%s", packet);
                         connection.reconnect();
                     }
                 }
             });
         } else {
-            logger.w("receive unsupported message, do reconnect, packet=" + packet);
+            logger.w("receive unsupported message, do reconnect, packet=%s", packet);
             connection.reconnect();
         }
     }

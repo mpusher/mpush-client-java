@@ -29,7 +29,7 @@ public final class HandshakeOkHandler extends BaseMessageHandler<HandshakeOkMess
         SessionContext context = connection.getSessionContext();
         byte[] serverKey = message.serverKey;
         if (serverKey.length != CipherBox.INSTANCE.getAesKeyLength()) {
-            logger.w("handshake error serverKey invalid message=" + message);
+            logger.w("handshake error serverKey invalid message=%s", message);
             connection.reconnect();
             return;
         }
@@ -55,7 +55,6 @@ public final class HandshakeOkHandler extends BaseMessageHandler<HandshakeOkMess
         SessionStorage storage = ClientConfig.I.getSessionStorage();
         if (storage == null || message.sessionId == null) return;
         PersistentSession session = new PersistentSession();
-        session.serverHost = message.serverHost;
         session.sessionId = message.sessionId;
         session.expireTime = message.expireTime;
         session.cipher = context.cipher;
