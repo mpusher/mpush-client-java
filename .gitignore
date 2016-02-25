@@ -1,0 +1,17 @@
+*.class
+*.classpath
+*.project
+*/.settings/*
+*/target/*
+*/bin/*
+*/WebContent/*
+/.idea
+/*.iml
+/*/*.iml
+
+.idea/*
+*.jar
+*.war
+*.ear
+*.iml
+./target/*
