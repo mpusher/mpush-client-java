@@ -12,8 +12,7 @@ public final class Packet {
     public static final byte FLAG_CRYPTO = 0x01;//packet包启用加密
     public static final byte FLAG_COMPRESS = 0x02;//packet包启用压缩
 
-    public static final byte HB_PACKET_BYTE = '\n';
-    public static final byte[] HB_PACKET_BYTES = new byte[]{HB_PACKET_BYTE};
+    public static final byte HB_PACKET_BYTE = -33;
     public static final Packet HB_PACKET = new Packet(Command.HEARTBEAT);
 
     public byte cmd; //命令
@@ -97,5 +96,4 @@ public final class Packet {
                 ", body=" + (body == null ? 0 : body.length) +
                 '}';
     }
-
 }
