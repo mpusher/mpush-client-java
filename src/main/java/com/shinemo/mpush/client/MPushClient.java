@@ -275,6 +275,14 @@ public final class MPushClient implements Client {
 
     @Override
     public boolean healthCheck() {
+
+        if (connection.isReadTimeout()) {
+            hbTimeoutTimes++;
+            logger.w("heartbeat timeout times=%s", hbTimeoutTimes);
+        } else {
+            hbTimeoutTimes = 0;
+        }
+
         if (hbTimeoutTimes >= MAX_HB_TIMEOUT_COUNT) {
             logger.w("heartbeat timeout times=%d over limit=%d, client restart", hbTimeoutTimes, MAX_HB_TIMEOUT_COUNT);
             hbTimeoutTimes = 0;
@@ -287,14 +295,7 @@ public final class MPushClient implements Client {
             connection.send(Packet.HB_PACKET);
         }
 
-        if (connection.isReadTimeout()) {
-            hbTimeoutTimes++;
-            logger.w("heartbeat timeout times=%s", hbTimeoutTimes);
-            return false;
-        } else {
-            hbTimeoutTimes = 0;
-            return true;
-        }
+        return true;
     }
 
     @Override
