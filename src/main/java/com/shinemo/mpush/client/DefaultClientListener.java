@@ -48,6 +48,8 @@ import java.util.concurrent.Executor;
                     listener.onHandshakeOk(client, heartbeat);
                 }
             });
+        } else {
+            //do heathCheck
         }
         client.bindUser(ClientConfig.I.getUserId());
     }
