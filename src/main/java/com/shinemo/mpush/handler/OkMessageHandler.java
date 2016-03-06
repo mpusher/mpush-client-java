@@ -20,6 +20,6 @@ public final class OkMessageHandler extends BaseMessageHandler<OkMessage> {
 
     @Override
     public void handle(OkMessage message) {
-        logger.w("receive an ok message=%s", message);
+        logger.w("<<< receive an ok message=%s", message);
     }
 }

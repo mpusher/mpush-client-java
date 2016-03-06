@@ -48,7 +48,7 @@ public final class HandshakeOkHandler extends BaseMessageHandler<HandshakeOkMess
 
         //保存token
         saveToken(message, context);
-        logger.w("handshake ok message=%s, context=%s", message, context);
+        logger.w("<<< handshake ok message=%s, context=%s", message, context);
     }
 
     private void saveToken(HandshakeOkMessage message, SessionContext context) {

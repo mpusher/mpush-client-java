@@ -51,7 +51,7 @@ public final class MessageDispatcher implements PacketReceiver {
                 }
             });
         } else {
-            logger.w("receive unsupported message, do reconnect, packet=%s", packet);
+            logger.w("<<< receive unsupported message, do reconnect, packet=%s", packet);
             connection.reconnect();
         }
     }

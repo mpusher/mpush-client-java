@@ -291,7 +291,7 @@ public final class MPushClient implements Client {
         }
 
         if (connection.isWriteTimeout()) {
-            logger.d("send heartbeat ping...");
+            logger.d(">>> send heartbeat ping...");
             connection.send(Packet.HB_PACKET);
         }
 
@@ -327,7 +327,7 @@ public final class MPushClient implements Client {
         message.minHeartbeat = config.getMinHeartbeat();
         message.sendRaw();
         connection.getSessionContext().changeCipher(session.cipher);
-        logger.w("do fast connect, message=%s", message);
+        logger.w(">>> do fast connect, message=%s", message);
     }
 
     @Override
@@ -345,7 +345,7 @@ public final class MPushClient implements Client {
         message.minHeartbeat = config.getMinHeartbeat();
         message.send();
         context.changeCipher(new AesCipher(message.clientKey, message.iv));
-        logger.w("do handshake, message=%s", message);
+        logger.w(">>> do handshake, message=%s", message);
     }
 
     @Override
@@ -362,7 +362,7 @@ public final class MPushClient implements Client {
                 .buildBind(connection)
                 .setUserId(userId)
                 .send();
-        logger.w("do bind user, userId=%s", userId);
+        logger.w(">>> do bind user, userId=%s", userId);
     }
 
     @Override
@@ -378,7 +378,7 @@ public final class MPushClient implements Client {
                 .buildUnbind(connection)
                 .setUserId(userId)
                 .send();
-        logger.w("do unbind user, userId=%s", userId);
+        logger.w(">>> do unbind user, userId=%s", userId);
     }
 
     @Override

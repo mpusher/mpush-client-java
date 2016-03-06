@@ -20,7 +20,7 @@ public final class KickUserHandler extends BaseMessageHandler<KickUserMessage> {
 
     @Override
     public void handle(KickUserMessage message) {
-        logger.w("receive an kickUser message=%s", message);
+        logger.w("<<< receive an kickUser message=%s", message);
         ClientListener listener = ClientConfig.I.getClientListener();
         listener.onKickUser(message.deviceId, message.userId);
     }

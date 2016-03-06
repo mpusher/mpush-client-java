@@ -21,7 +21,7 @@ public final class ErrorMessageHandler extends BaseMessageHandler<ErrorMessage> 
 
     @Override
     public void handle(ErrorMessage message) {
-        logger.w("receive an error message=%s", message);
+        logger.w("<<< receive an error message=%s", message);
         if (message.cmd == Command.FAST_CONNECT.cmd) {
             ClientConfig.I.getSessionStorage().clearSession();
             message.getConnection().getClient().handshake();
