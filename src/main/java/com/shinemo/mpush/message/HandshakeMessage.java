@@ -4,7 +4,7 @@ package com.shinemo.mpush.message;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.protocol.Command;
 import com.shinemo.mpush.api.protocol.Packet;
-import com.shinemo.mpush.util.ScalableBuffer;
+import com.shinemo.mpush.util.ByteBuf;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -44,7 +44,7 @@ public final class HandshakeMessage extends ByteBufMessage {
         timestamp = decodeLong(body);
     }
 
-    protected void encode(ScalableBuffer body) {
+    protected void encode(ByteBuf body) {
         encodeString(body, deviceId);
         encodeString(body, osName);
         encodeString(body, osVersion);

@@ -3,7 +3,7 @@ package com.shinemo.mpush.message;
 import com.shinemo.mpush.api.Constants;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.protocol.Packet;
-import com.shinemo.mpush.util.ScalableBuffer;
+import com.shinemo.mpush.util.ByteBuf;
 
 import java.nio.ByteBuffer;
 
@@ -23,32 +23,32 @@ public abstract class ByteBufMessage extends BaseMessage {
 
     @Override
     protected byte[] encode() {
-        ScalableBuffer body = ScalableBuffer.allocate(1024);
+        ByteBuf body = ByteBuf.allocate(1024);
         encode(body);
         return body.getArray();
     }
 
     protected abstract void decode(ByteBuffer body);
 
-    protected abstract void encode(ScalableBuffer body);
+    protected abstract void encode(ByteBuf body);
 
-    protected void encodeString(ScalableBuffer body, String field) {
+    protected void encodeString(ByteBuf body, String field) {
         encodeBytes(body, field == null ? null : field.getBytes(Constants.UTF_8));
     }
 
-    protected void encodeByte(ScalableBuffer body, byte field) {
+    protected void encodeByte(ByteBuf body, byte field) {
         body.put(field);
     }
 
-    protected void encodeInt(ScalableBuffer body, int field) {
+    protected void encodeInt(ByteBuf body, int field) {
         body.putInt(field);
     }
 
-    protected void encodeLong(ScalableBuffer body, long field) {
+    protected void encodeLong(ByteBuf body, long field) {
         body.putLong(field);
     }
 
-    protected void encodeBytes(ScalableBuffer body, byte[] field) {
+    protected void encodeBytes(ByteBuf body, byte[] field) {
         if (field == null || field.length == 0) {
             body.putShort(0);
         } else if (field.length < Short.MAX_VALUE) {

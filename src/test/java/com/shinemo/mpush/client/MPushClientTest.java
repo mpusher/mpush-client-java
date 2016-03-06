@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
  * Created by ohun on 2016/1/25.
  */
 public class MPushClientTest {
-    private static final String publicKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCghPCWCobG8nTD24juwSVataW7iViRxcTkey/B792VZEhuHjQvA3cAJgx2Lv8GnX8NIoShZtoCg3Cx6ecs+VEPD2fBcg2L4JK7xldGpOJ3ONEAyVsLOttXZtNXvyDZRijiErQALMTorcgi79M5uVX9/jMv2Ggb2XAeZhlLD28fHwIDAQAB";
+    private static final String publicKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCcNLVG4noMfOIvKfV0eJAcADO4nr0hqoj42swL8DWY8CujpUGutw7Qk5LEn6i037wlF5CwIzJ7ix2xK+IcxEonOANtlS1NKbUXOCgUtA5mdZTnvAUByN0tzGp4BGywYNiXFQmLMXG5uxN0ZfcaoRKVqLzbcMnLB7VzS4L3OxzxqwIDAQAB";
     private static final String allocServer = "http://allot.mangguoyisheng.com/";
 
     public static void main(String[] args) throws Exception {

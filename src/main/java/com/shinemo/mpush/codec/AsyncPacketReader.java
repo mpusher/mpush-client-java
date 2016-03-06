@@ -7,7 +7,7 @@ import com.shinemo.mpush.api.PacketReceiver;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.util.thread.NamedThreadFactory;
-import com.shinemo.mpush.util.ScalableBuffer;
+import com.shinemo.mpush.util.ByteBuf;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -22,7 +22,7 @@ public final class AsyncPacketReader implements PacketReader, Runnable {
     private final NamedThreadFactory threadFactory = new NamedThreadFactory(READ_THREAD_NAME);
     private final Connection connection;
     private final PacketReceiver receiver;
-    private final ScalableBuffer buffer;
+    private final ByteBuf buffer;
     private final Logger logger;
 
     private Thread thread;
@@ -30,7 +30,7 @@ public final class AsyncPacketReader implements PacketReader, Runnable {
     public AsyncPacketReader(Connection connection, PacketReceiver receiver) {
         this.connection = connection;
         this.receiver = receiver;
-        this.buffer = ScalableBuffer.allocate(Short.MAX_VALUE);//默认读buffer大小为32k
+        this.buffer = ByteBuf.allocateDirect(Short.MAX_VALUE);//默认读buffer大小为32k
         this.logger = ClientConfig.I.getLogger();
     }
 
@@ -52,7 +52,7 @@ public final class AsyncPacketReader implements PacketReader, Runnable {
         try {
             this.buffer.clear();
             while (connection.isConnected()) {
-                ByteBuffer in = buffer.getNioBuffer(1024);//如果剩余空间不够每次增加1k
+                ByteBuffer in = buffer.checkCapacity(1024).nioBuffer();//如果剩余空间不够每次增加1k
                 if (!read(connection.getChannel(), in)) break;
                 in.flip();
                 decodePacket(in);

@@ -5,7 +5,7 @@ import com.shinemo.mpush.api.PacketWriter;
 import com.shinemo.mpush.api.connection.Connection;
 import com.shinemo.mpush.api.protocol.Packet;
 import com.shinemo.mpush.client.ClientConfig;
-import com.shinemo.mpush.util.ScalableBuffer;
+import com.shinemo.mpush.util.ByteBuf;
 import com.shinemo.mpush.util.thread.EventLock;
 import com.shinemo.mpush.util.thread.ExecutorManager;
 
@@ -23,12 +23,12 @@ public final class AsyncPacketWriter implements PacketWriter {
     private final Logger logger;
     private final Connection connection;
     private final EventLock connLock;
-    private final ScalableBuffer buffer;
+    private final ByteBuf buffer;
 
     public AsyncPacketWriter(Connection connection, EventLock connLock) {
         this.connection = connection;
         this.connLock = connLock;
-        this.buffer = ScalableBuffer.allocate(1024);//默认写buffer为1k
+        this.buffer = ByteBuf.allocateDirect(1024);//默认写buffer为1k
         this.logger = ClientConfig.I.getLogger();
     }
 
@@ -49,7 +49,7 @@ public final class AsyncPacketWriter implements PacketWriter {
             buffer.clear();
             PacketEncoder.encode(packet, buffer);
             buffer.flip();
-            ByteBuffer out = buffer.getNioBuffer();
+            ByteBuffer out = buffer.nioBuffer();
             while (out.hasRemaining()) {
                 if (connection.isConnected()) {
                     try {

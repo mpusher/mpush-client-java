@@ -5,17 +5,23 @@ import java.nio.*;
 /**
  * Created by ohun on 2016/1/21.
  */
-public final class ScalableBuffer {
+public final class ByteBuf {
     private ByteBuffer tmpNioBuf;
 
-    public static ScalableBuffer allocate(int capacity) {
-        ScalableBuffer buffer = new ScalableBuffer();
+    public static ByteBuf allocate(int capacity) {
+        ByteBuf buffer = new ByteBuf();
         buffer.tmpNioBuf = ByteBuffer.allocate(capacity);
         return buffer;
     }
 
-    public static ScalableBuffer wrap(byte[] array) {
-        ScalableBuffer buffer = new ScalableBuffer();
+    public static ByteBuf allocateDirect(int capacity) {
+        ByteBuf buffer = new ByteBuf();
+        buffer.tmpNioBuf = ByteBuffer.allocateDirect(capacity);
+        return buffer;
+    }
+
+    public static ByteBuf wrap(byte[] array) {
+        ByteBuf buffer = new ByteBuf();
         buffer.tmpNioBuf = ByteBuffer.wrap(array);
         return buffer;
     }
@@ -28,7 +34,7 @@ public final class ScalableBuffer {
         return array;
     }
 
-    public ScalableBuffer get(byte[] array) {
+    public ByteBuf get(byte[] array) {
         tmpNioBuf.get(array);
         return this;
     }
@@ -37,51 +43,58 @@ public final class ScalableBuffer {
         return tmpNioBuf.get();
     }
 
-    public ByteBuffer put(byte b) {
+    public ByteBuf put(byte b) {
         checkCapacity(1);
-        return tmpNioBuf.put(b);
+        tmpNioBuf.put(b);
+        return this;
     }
 
     public short getShort() {
         return tmpNioBuf.getShort();
     }
 
-    public ByteBuffer putShort(int value) {
+    public ByteBuf putShort(int value) {
         checkCapacity(2);
-        return tmpNioBuf.putShort((short) value);
+        tmpNioBuf.putShort((short) value);
+        return this;
     }
 
     public int getInt() {
         return tmpNioBuf.getInt();
     }
 
-    public ByteBuffer putInt(int value) {
+    public ByteBuf putInt(int value) {
         checkCapacity(4);
-        return tmpNioBuf.putInt(value);
+        tmpNioBuf.putInt(value);
+        return this;
     }
 
     public long getLong() {
         return tmpNioBuf.getLong();
     }
 
-    public ByteBuffer putLong(long value) {
+    public ByteBuf putLong(long value) {
         checkCapacity(8);
-        return tmpNioBuf.putLong(value);
+        tmpNioBuf.putLong(value);
+        return this;
     }
 
-    public ByteBuffer put(byte[] value) {
+    public ByteBuf put(byte[] value) {
         checkCapacity(value.length);
-        return tmpNioBuf.put(value);
+        tmpNioBuf.put(value);
+        return this;
     }
 
-    public void checkCapacity(int minWritableBytes) {
+    public ByteBuf checkCapacity(int minWritableBytes) {
         int remaining = tmpNioBuf.remaining();
         if (remaining < minWritableBytes) {
-            ByteBuffer newBuffer = ByteBuffer.allocate(newCapacity(tmpNioBuf.capacity() + minWritableBytes));
+            int newCapacity = newCapacity(tmpNioBuf.capacity() + minWritableBytes);
+            ByteBuffer newBuffer = tmpNioBuf.isDirect() ? ByteBuffer.allocateDirect(newCapacity) : ByteBuffer.allocate(newCapacity);
             tmpNioBuf.flip();
             newBuffer.put(tmpNioBuf);
             tmpNioBuf = newBuffer;
         }
+        return this;
     }
 
     private int newCapacity(int minNewCapacity) {
@@ -92,21 +105,16 @@ public final class ScalableBuffer {
         return newCapacity;
     }
 
-    public ByteBuffer getNioBuffer(int minNewCapacity) {
-        checkCapacity(minNewCapacity);
+    public ByteBuffer nioBuffer() {
         return tmpNioBuf;
     }
 
-    public ByteBuffer getNioBuffer() {
-        return tmpNioBuf;
-    }
-
-    public ScalableBuffer clear() {
+    public ByteBuf clear() {
         tmpNioBuf.clear();
         return this;
     }
 
-    public ScalableBuffer flip() {
+    public ByteBuf flip() {
         tmpNioBuf.flip();
         return this;
     }
