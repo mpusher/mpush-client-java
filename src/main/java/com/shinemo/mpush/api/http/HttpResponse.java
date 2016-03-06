@@ -1,5 +1,7 @@
 package com.shinemo.mpush.api.http;
 
+import com.shinemo.mpush.api.Constants;
+
 import java.util.Map;
 
 /**
@@ -18,5 +20,15 @@ public final class HttpResponse {
         this.reasonPhrase = reasonPhrase;
         this.headers = headers;
         this.body = body;
+    }
+
+    @Override
+    public String toString() {
+        return "HttpResponse{" +
+                "statusCode=" + statusCode +
+                ", reasonPhrase='" + reasonPhrase + '\'' +
+                ", headers=" + headers +
+                ", body=" + (body == null ? "" : new String(body, Constants.UTF_8)) +
+                '}';
     }
 }

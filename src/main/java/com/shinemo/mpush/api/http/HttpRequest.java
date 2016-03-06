@@ -88,4 +88,13 @@ public final class HttpRequest {
         }
         return this;
     }
+
+    @Override
+    public String toString() {
+        return "HttpRequest{" +
+                "uri='" + uri + '\'' +
+                ", method=" + method +
+                ", timeout=" + timeout +
+                '}';
+    }
 }

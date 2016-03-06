@@ -390,6 +390,7 @@ public final class MPushClient implements Client {
             message.headers = request.headers;
             message.body = request.body;
             message.send();
+            logger.d(">>> send http proxy, request=%s", request);
             return requestQueue.add(message.getSessionId(), request);
         }
         return null;
