@@ -36,6 +36,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.shinemo.mpush.api.Constants.MAX_HB_TIMEOUT_COUNT;
+import static com.shinemo.mpush.api.Constants.MAX_RESTART_COUNT;
 import static com.shinemo.mpush.api.Constants.MAX_TOTAL_RESTART_COUNT;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -59,6 +60,7 @@ public final class MPushClient implements Client {
 
     private SocketChannel channel;
     private int hbTimeoutTimes;
+    private int totalRestartCount;
     private volatile int restartCount = 1;
     private volatile boolean autoRestart = true;
     private HttpRequestQueue requestQueue;
@@ -167,6 +169,12 @@ public final class MPushClient implements Client {
     }
 
     void restart() {
+        if (totalRestartCount > MAX_TOTAL_RESTART_COUNT) {//过载保护
+            logger.w("client total restart count over limit, totalRestartCount=%d, currentState=%s, autoRestart=%b"
+                    , totalRestartCount, clientState.get(), autoRestart);
+            return;
+        }
+
         State state = clientState.get();
         if (state == State.Starting || state == State.Restarting) {
             logger.w("client is restarting oldState=%s, currentState=%s, autoRestart=%b"
@@ -184,8 +192,9 @@ public final class MPushClient implements Client {
             }
 
             restartCount++;//记录重连次数
+            totalRestartCount++;
 
-            if (restartCount > MAX_TOTAL_RESTART_COUNT) {//超过此值sleep 10min
+            if (restartCount > MAX_RESTART_COUNT) {//超过此值 sleep 10min
                 if (!ExecutorManager.isMPThread()) return;
                 if (connLock.await(MINUTES.toMillis(MAX_TOTAL_RESTART_COUNT))) return;
                 restartCount = 1;
@@ -203,6 +212,7 @@ public final class MPushClient implements Client {
             clientState.compareAndSet(State.Restarting, State.Shutdown);
             connLock.unlock();
         }
+
         logger.w("do restart client count=%d, t=%s", restartCount, Thread.currentThread());
         closeChannel();
         start();
@@ -253,6 +263,7 @@ public final class MPushClient implements Client {
             clientState.set(State.Shutdown);
             connection.close();
             restartCount = 1;
+            totalRestartCount = 0;
             connLock.signalAll();
         }
         connLock.unlock();
