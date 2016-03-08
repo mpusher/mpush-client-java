@@ -232,9 +232,9 @@ public final class RSAUtils {
      * @throws IllegalBlockSizeException
      */
     private static byte[] doFinal(Cipher cipher, byte[] data, int key_len) throws BadPaddingException, IllegalBlockSizeException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
         int inputLen = data.length, offSet = 0;
         byte[] tmp;
+        ByteArrayOutputStream out = new ByteArrayOutputStream(getTmpArrayLength(inputLen));
         while (inputLen > 0) {
             tmp = cipher.doFinal(data, offSet, Math.min(key_len, inputLen));
             out.write(tmp, 0, tmp.length);
@@ -242,6 +242,12 @@ public final class RSAUtils {
             inputLen -= key_len;
         }
         return out.toByteArray();
+    }
+
+    private static int getTmpArrayLength(int L) {
+        int S = MAX_DECRYPT_BLOCK;
+        while (S < L) S <<= 1;
+        return S;
     }
 
     /**

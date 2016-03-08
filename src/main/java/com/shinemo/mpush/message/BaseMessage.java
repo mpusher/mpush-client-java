@@ -30,9 +30,8 @@ public abstract class BaseMessage implements Message {
             //1.解密
             byte[] tmp = packet.body;
             if (packet.hasFlag(Packet.FLAG_CRYPTO)) {
-                SessionContext info = connection.getSessionContext();
-                if (info.cipher != null) {
-                    tmp = info.cipher.decrypt(tmp);
+                if (connection.getSessionContext().cipher != null) {
+                    tmp = connection.getSessionContext().cipher.decrypt(tmp);
                 }
             }
 
@@ -40,9 +39,11 @@ public abstract class BaseMessage implements Message {
             if (packet.hasFlag(Packet.FLAG_COMPRESS)) {
                 tmp = IOUtils.uncompress(tmp);
             }
+
             if (tmp.length == 0) {
                 throw new RuntimeException("message decode ex");
             }
+
             packet.body = tmp;
             decode(packet.body);
         }
