@@ -183,7 +183,7 @@ public final class MPushClient implements Client {
         }
 
         connLock.lock();
-        logger.d("try restart client count=%d, t=%s", restartCount, Thread.currentThread());
+        logger.d("try restart client count=%d, total=%d, t=%s", restartCount, totalRestartCount, Thread.currentThread());
         try {
             if (!autoRestart || !clientState.compareAndSet(state, State.Restarting)) {
                 logger.w("1 restart failure oldState=%s, currentState=%s, autoRestart=%b"
@@ -213,7 +213,7 @@ public final class MPushClient implements Client {
             connLock.unlock();
         }
 
-        logger.w("do restart client count=%d, t=%s", restartCount, Thread.currentThread());
+        logger.w("do restart client count=%d, total=%d, t=%s", restartCount, totalRestartCount, Thread.currentThread());
         closeChannel();
         start();
     }
