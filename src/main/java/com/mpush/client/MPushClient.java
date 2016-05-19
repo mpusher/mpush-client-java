@@ -459,9 +459,9 @@ public final class MPushClient implements Client {
 	@Override
 	public void sendMsg(String content, String userId, MPushCallback callback) {
 		logger.d("send message request:%s, %s", content, userId);
-		SessionContext context = connection.getSessionContext();
-		context.changeCipher(CipherBox.INSTANCE.getRsaCipher());
 		ChatMessage message = new ChatMessage(userId,content,connection);
+		connection.getSessionContext().setCallBack(callback);
+		connection.getSessionContext().setUserId(userId);
 		message.content = content;
 		message.destUserId = userId;
 		message.send();
