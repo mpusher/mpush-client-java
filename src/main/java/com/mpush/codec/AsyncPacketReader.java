@@ -1,18 +1,18 @@
 package com.mpush.codec;
 
-import com.mpush.api.PacketReceiver;
-import com.mpush.api.connection.Connection;
-import com.mpush.api.protocol.Packet;
-import com.mpush.util.thread.ExecutorManager;
-import com.mpush.client.ClientConfig;
-import com.mpush.api.Logger;
-import com.mpush.api.PacketReader;
-import com.mpush.util.thread.NamedThreadFactory;
-import com.mpush.util.ByteBuf;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+
+import com.mpush.api.Logger;
+import com.mpush.api.PacketReader;
+import com.mpush.api.PacketReceiver;
+import com.mpush.api.connection.Connection;
+import com.mpush.api.protocol.Packet;
+import com.mpush.util.ByteBuf;
+import com.mpush.util.DefaultLogger;
+import com.mpush.util.thread.ExecutorManager;
+import com.mpush.util.thread.NamedThreadFactory;
 
 /**
  * Created by ohun on 2016/1/17.
@@ -22,7 +22,7 @@ public final class AsyncPacketReader implements PacketReader, Runnable {
     private final Connection connection;
     private final PacketReceiver receiver;
     private final ByteBuf buffer;
-    private final Logger logger;
+    private static final Logger logger = new DefaultLogger(AsyncPacketReader.class);
 
     private Thread thread;
 
@@ -30,7 +30,6 @@ public final class AsyncPacketReader implements PacketReader, Runnable {
         this.connection = connection;
         this.receiver = receiver;
         this.buffer = ByteBuf.allocateDirect(Short.MAX_VALUE);//默认读buffer大小为32k
-        this.logger = ClientConfig.I.getLogger();
     }
 
     @Override
@@ -66,7 +65,7 @@ public final class AsyncPacketReader implements PacketReader, Runnable {
     private void decodePacket(ByteBuffer in) {
         Packet packet;
         while ((packet = PacketDecoder.decode(in)) != null) {
-            //  logger.d("decode one packet=%s", packet);
+            logger.d("decode one packet=%s", packet);
             receiver.onReceive(packet, connection);
         }
     }

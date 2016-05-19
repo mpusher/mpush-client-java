@@ -2,6 +2,7 @@ package com.mpush.api.protocol;
 
 import com.mpush.api.http.HttpRequest;
 import com.mpush.api.http.HttpResponse;
+import com.mpush.client.MPushCallback;
 
 import java.util.concurrent.Future;
 
@@ -19,6 +20,8 @@ public interface MPushProtocol {
     void bindUser(String userId);
 
     void unbindUser();
+    
+    void sendMsg(String content, String destUserId, MPushCallback callback);
 
     Future<HttpResponse> sendHttp(HttpRequest request);
 }

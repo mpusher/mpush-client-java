@@ -1,35 +1,34 @@
 package com.mpush.codec;
 
-import com.mpush.api.connection.Connection;
-import com.mpush.api.protocol.Packet;
-import com.mpush.util.thread.ExecutorManager;
-import com.mpush.api.Logger;
-import com.mpush.api.PacketWriter;
-import com.mpush.client.ClientConfig;
-import com.mpush.util.ByteBuf;
-import com.mpush.util.thread.EventLock;
+import static com.mpush.api.Constants.DEFAULT_WRITE_TIMEOUT;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Executor;
 
-import static com.mpush.api.Constants.DEFAULT_WRITE_TIMEOUT;
+import com.mpush.api.Logger;
+import com.mpush.api.PacketWriter;
+import com.mpush.api.connection.Connection;
+import com.mpush.api.protocol.Packet;
+import com.mpush.util.ByteBuf;
+import com.mpush.util.DefaultLogger;
+import com.mpush.util.thread.EventLock;
+import com.mpush.util.thread.ExecutorManager;
 
 /**
  * Created by ohun on 2016/1/17.
  */
 public final class AsyncPacketWriter implements PacketWriter {
     private final Executor executor = ExecutorManager.INSTANCE.getWriteThread();
-    private final Logger logger;
     private final Connection connection;
     private final EventLock connLock;
     private final ByteBuf buffer;
+    private static final Logger logger = new DefaultLogger(AsyncPacketWriter.class);
 
     public AsyncPacketWriter(Connection connection, EventLock connLock) {
         this.connection = connection;
         this.connLock = connLock;
         this.buffer = ByteBuf.allocateDirect(1024);//默认写buffer为1k
-        this.logger = ClientConfig.I.getLogger();
     }
 
     public void write(Packet packet) {

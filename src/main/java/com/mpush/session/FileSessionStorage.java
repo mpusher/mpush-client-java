@@ -1,11 +1,15 @@
 package com.mpush.session;
 
-import com.mpush.api.connection.SessionStorage;
-import com.mpush.util.IOUtils;
-import com.mpush.api.Constants;
-import com.mpush.client.ClientConfig;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 
-import java.io.*;
+import com.mpush.api.Constants;
+import com.mpush.api.Logger;
+import com.mpush.api.connection.SessionStorage;
+import com.mpush.util.DefaultLogger;
+import com.mpush.util.IOUtils;
 
 /**
  * Created by ohun on 2016/1/25.
@@ -13,6 +17,7 @@ import java.io.*;
 public final class FileSessionStorage implements SessionStorage {
     private final String rootDir;
     private final String fileName = "token.dat";
+    private static final Logger logger = new DefaultLogger(FileSessionStorage.class);
 
     public FileSessionStorage(String rootDir) {
         this.rootDir = rootDir;
@@ -28,7 +33,7 @@ public final class FileSessionStorage implements SessionStorage {
             out = new FileOutputStream(file);
             out.write(sessionContext.getBytes(Constants.UTF_8));
         } catch (Exception e) {
-            ClientConfig.I.getLogger().e(e, "save session context ex, session=%s, rootDir=%s"
+        	logger.e(e, "save session context ex, session=%s, rootDir=%s"
                     , sessionContext, rootDir);
         } finally {
             IOUtils.close(out);
@@ -49,7 +54,7 @@ public final class FileSessionStorage implements SessionStorage {
             }
             in.close();
         } catch (Exception e) {
-            ClientConfig.I.getLogger().e(e, "get session context ex,rootDir=%s", rootDir);
+        	logger.e(e, "get session context ex,rootDir=%s", rootDir);
         } finally {
             IOUtils.close(in);
         }

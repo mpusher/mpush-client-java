@@ -1,24 +1,32 @@
 package com.mpush.util;
 
-import com.mpush.api.Logger;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import com.mpush.api.Logger;
 
 /**
  * Created by ohun on 2016/1/25.
  */
 public final class DefaultLogger implements Logger {
-    private static final String TAG = "[mpush] ";
+    private String TAG = "[mpush] ";
     private final DateFormat format = new SimpleDateFormat("HH:mm:ss.SSS");
 
-    private boolean enable = false;
-
-    @Override
-    public void enable(boolean enabled) {
-        this.enable = enabled;
-    }
+    private boolean enable = true;
+    
+    public DefaultLogger(Class<?> clazz) {
+		this.TAG = "[" + clazz.getSimpleName() + "] ";
+	}
+    
+//    public DefaultLogger() {
+//		this.TAG = "[mpush] ";
+//	}
+//
+//    @Override
+//    public void enable(boolean enabled) {
+//        this.enable = enabled;
+//    }
 
     @Override
     public void d(String s, Object... args) {

@@ -1,21 +1,27 @@
 package com.mpush.util.crypto;
 
 
-import com.mpush.api.Constants;
-import com.mpush.client.ClientConfig;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
-import java.security.*;
+import java.security.Key;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Signature;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+
+import com.mpush.api.Constants;
+import com.mpush.api.Logger;
+import com.mpush.util.DefaultLogger;
 
 /**
  * RSA公钥/私钥/签名工具包
@@ -55,6 +61,8 @@ public final class RSAUtils {
      * RSA最大加密明文大小
      */
     private static final int MAX_ENCRYPT_BLOCK = 128 - 11;
+    
+    private static final Logger logger = new DefaultLogger(RSAUtils.class);
 
 
     /**
@@ -192,7 +200,7 @@ public final class RSAUtils {
             //如果明文长度大于模长-11则要分组加密
             return doFinal(cipher, data, key_len - 11);
         } catch (Exception e) {
-            ClientConfig.I.getLogger().e(e, "encryptByPublicKey ex");
+            logger.e(e, "encryptByPublicKey ex");
         }
         return Constants.EMPTY_BYTES;
     }
@@ -213,7 +221,7 @@ public final class RSAUtils {
             //如果密文长度大于模长则要分组解密
             return doFinal(cipher, data, key_len);
         } catch (Exception e) {
-            ClientConfig.I.getLogger().e(e, "decryptByPrivateKey ex");
+            logger.e(e, "decryptByPrivateKey ex");
         }
         return Constants.EMPTY_BYTES;
     }

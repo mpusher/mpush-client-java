@@ -1,12 +1,13 @@
 package com.mpush.util.crypto;
 
 
-import com.mpush.client.ClientConfig;
-import com.mpush.api.Constants;
-
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+
+import com.mpush.api.Constants;
+import com.mpush.api.Logger;
+import com.mpush.util.DefaultLogger;
 
 /**
  * Created by ohun on 2015/12/25.
@@ -14,6 +15,7 @@ import javax.crypto.spec.SecretKeySpec;
 public final class AESUtils {
     public static final String KEY_ALGORITHM = "AES";
     public static final String KEY_ALGORITHM_PADDING = "AES/CBC/PKCS5Padding";
+    private static final Logger logger = new DefaultLogger(AESUtils.class);
 
 
     public static byte[] encrypt(byte[] data, byte[] encryptKey, byte[] iv) {
@@ -24,7 +26,7 @@ public final class AESUtils {
             cipher.init(Cipher.ENCRYPT_MODE, key, zeroIv);
             return cipher.doFinal(data);
         } catch (Exception e) {
-            ClientConfig.I.getLogger().e(e, "encrypt ex, decryptKey=%s", encryptKey);
+            logger.e(e, "encrypt ex, decryptKey=%s", encryptKey);
         }
         return Constants.EMPTY_BYTES;
     }
@@ -37,7 +39,7 @@ public final class AESUtils {
             cipher.init(Cipher.DECRYPT_MODE, key, zeroIv);
             return cipher.doFinal(data);
         } catch (Exception e) {
-            ClientConfig.I.getLogger().e(e, "decrypt ex, decryptKey=%s", decryptKey);
+            logger.e(e, "decrypt ex, decryptKey=%s", decryptKey);
         }
         return Constants.EMPTY_BYTES;
     }

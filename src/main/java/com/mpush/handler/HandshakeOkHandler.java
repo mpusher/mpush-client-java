@@ -1,22 +1,23 @@
 package com.mpush.handler;
 
 import com.mpush.api.ClientListener;
-import com.mpush.api.connection.SessionStorage;
-import com.mpush.session.PersistentSession;
-import com.mpush.client.ClientConfig;
 import com.mpush.api.Logger;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.SessionContext;
+import com.mpush.api.connection.SessionStorage;
 import com.mpush.api.protocol.Packet;
+import com.mpush.client.ClientConfig;
 import com.mpush.message.HandshakeOkMessage;
 import com.mpush.security.AesCipher;
 import com.mpush.security.CipherBox;
+import com.mpush.session.PersistentSession;
+import com.mpush.util.DefaultLogger;
 
 /**
  * Created by ohun on 2016/1/23.
  */
 public final class HandshakeOkHandler extends BaseMessageHandler<HandshakeOkMessage> {
-    private final Logger logger = ClientConfig.I.getLogger();
+	private static final Logger logger = new DefaultLogger(HandshakeOkHandler.class);
 
     @Override
     public HandshakeOkMessage decode(Packet packet, Connection connection) {
@@ -29,7 +30,7 @@ public final class HandshakeOkHandler extends BaseMessageHandler<HandshakeOkMess
         SessionContext context = connection.getSessionContext();
         byte[] serverKey = message.serverKey;
         if (serverKey.length != CipherBox.INSTANCE.getAesKeyLength()) {
-            logger.w("handshake error serverKey invalid message=%s", message);
+            logger.d("handshake error serverKey invalid message=%s", message);
             connection.reconnect();
             return;
         }
@@ -42,13 +43,12 @@ public final class HandshakeOkHandler extends BaseMessageHandler<HandshakeOkMess
         context.changeCipher(new AesCipher(sessionKey, cipher.iv));
 
         //触发握手成功事件
-
         ClientListener listener = ClientConfig.I.getClientListener();
         listener.onHandshakeOk(connection.getClient(), message.heartbeat);
 
         //保存token
         saveToken(message, context);
-        logger.w("<<< handshake ok message=%s, context=%s", message, context);
+        logger.d("<<< handshake ok message=%s, context=%s", message, context);
     }
 
     private void saveToken(HandshakeOkMessage message, SessionContext context) {

@@ -1,10 +1,7 @@
 package com.mpush.client;
 
-import com.mpush.api.http.HttpCallback;
-import com.mpush.api.http.HttpRequest;
-import com.mpush.api.Logger;
-import com.mpush.api.http.HttpResponse;
-import com.mpush.util.thread.ExecutorManager;
+import static java.net.HttpURLConnection.HTTP_CLIENT_TIMEOUT;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -15,8 +12,12 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static java.net.HttpURLConnection.HTTP_CLIENT_TIMEOUT;
-import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import com.mpush.api.Logger;
+import com.mpush.api.http.HttpCallback;
+import com.mpush.api.http.HttpRequest;
+import com.mpush.api.http.HttpResponse;
+import com.mpush.util.DefaultLogger;
+import com.mpush.util.thread.ExecutorManager;
 
 /**
  * Created by yxx on 2016/2/16.
@@ -35,7 +36,7 @@ public final class HttpRequestQueue {
             return response404;
         }
     };
-    private final Logger logger = ClientConfig.I.getLogger();
+    private static final Logger logger = new DefaultLogger(HttpRequestQueue.class);
 
     public Future<HttpResponse> add(int sessionId, HttpRequest request) {
         RequestTask task = new RequestTask(sessionId, request);

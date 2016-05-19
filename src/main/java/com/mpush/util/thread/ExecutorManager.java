@@ -1,13 +1,14 @@
 package com.mpush.util.thread;
 
-import com.mpush.client.ClientConfig;
-
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import com.mpush.api.Logger;
+import com.mpush.util.DefaultLogger;
 
 /**
  * Created by ohun on 2016/1/23.
@@ -24,6 +25,7 @@ public final class ExecutorManager {
     private ThreadPoolExecutor dispatchThread;
     private ThreadPoolExecutor startThread;
     private ScheduledExecutorService httpRequestThread;
+    private static final Logger logger = new DefaultLogger(ExecutorManager.class);
 
     public ThreadPoolExecutor getWriteThread() {
         if (writeThread == null || writeThread.isShutdown()) {
@@ -95,7 +97,7 @@ public final class ExecutorManager {
 
         @Override
         public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-            ClientConfig.I.getLogger().w("a task was rejected execute=%s", executor);
+            logger.w("a task was rejected execute=%s", executor);
         }
     }
 }
