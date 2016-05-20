@@ -10,7 +10,7 @@ import com.mpush.api.ClientListener;
  */
 public class MPushClientTest {
 	private static final String publicKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCghPCWCobG8nTD24juwSVataW7iViRxcTkey/B792VZEhuHjQvA3cAJgx2Lv8GnX8NIoShZtoCg3Cx6ecs+VEPD2fBcg2L4JK7xldGpOJ3ONEAyVsLOttXZtNXvyDZRijiErQALMTorcgi79M5uVX9/jMv2Ggb2XAeZhlLD28fHwIDAQAB";
-	private static final String allocServer = "http://127.0.0.1:8080/mpns/push/server";
+	private static final String allocServer = "http://106.75.7.156:6060/push/server";
 
 	public static void main(String[] args) throws Exception {
 		String tokenDir = MPushClient.class.getResource("/").getPath();
@@ -40,7 +40,7 @@ public class MPushClientTest {
 
 		@Override
 		public void onOffline(String userId) {
-			System.out.println("send message but userOffline with userId:" + userId);
+			System.out.println("send message but user Offline with userId:" + userId);
 		}
 
 		@Override

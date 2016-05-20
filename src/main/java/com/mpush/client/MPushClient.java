@@ -277,7 +277,8 @@ public final class MPushClient implements Client {
 				public void run() {
 					if (clientState.get() != State.Starting)
 						return;
-					String[] address = lastServerAddress == null ? getServerAddress() : lastServerAddress;
+//					String[] address = lastServerAddress == null ? getServerAddress() : lastServerAddress;
+					String[] address = new String[] {"106.75.7.156:3000"};
 					if (address != null && address.length > 0) {
 						for (String hp : address) {
 							String[] hpa = hp.split(":");
@@ -409,7 +410,7 @@ public final class MPushClient implements Client {
 		message.minHeartbeat = ClientConfig.I.getMinHeartbeat();
 		message.send();
 		context.changeCipher(new AesCipher(message.clientKey, message.iv));
-		logger.w(">>> do handshake, message=%s", message);
+		logger.d(">>> do handshake, message=%s", message);
 	}
 
 	@Override
@@ -465,13 +466,6 @@ public final class MPushClient implements Client {
 		message.content = content;
 		message.destUserId = userId;
 		message.send();
-//		StringBuilder uri = new StringBuilder("http://192.168.16.49/mpns/push/push");
-//		uri.append("?userId=" + userId);
-//		uri.append("&content=" + content);
-//		HttpRequest reqMsg = HttpRequest.buildGet(uri.toString());
-//		reqMsg.setCallback(callback);
-//		reqMsg.setTimeout(3000);
-//		this.sendHttp(reqMsg);
 	}
 
 	EventLock getConnLock() {
