@@ -4,24 +4,32 @@ import java.util.concurrent.locks.LockSupport;
 
 import com.mpush.api.Client;
 import com.mpush.api.ClientListener;
+import com.mpush.api.http.HttpCallback;
+import com.mpush.api.http.HttpMethod;
+import com.mpush.api.http.HttpRequest;
+import com.mpush.api.http.HttpResponse;
 
 /**
  * Created by ohun on 2016/1/25.
  */
 public class MPushClientTest {
 	private static final String publicKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCghPCWCobG8nTD24juwSVataW7iViRxcTkey/B792VZEhuHjQvA3cAJgx2Lv8GnX8NIoShZtoCg3Cx6ecs+VEPD2fBcg2L4JK7xldGpOJ3ONEAyVsLOttXZtNXvyDZRijiErQALMTorcgi79M5uVX9/jMv2Ggb2XAeZhlLD28fHwIDAQAB";
-	private static final String allocServer = "http://106.75.7.156:6060/push/server";
+//	private static final String allocServer = "http://localhost:8080/webserver/cafe/getMPushServer.do";
+	private static final String allocServer = "http://test.supplier.bicaijia.com/supplier/getMPushServer.do";
 
 	public static void main(String[] args) throws Exception {
 		String tokenDir = MPushClient.class.getResource("/").getPath();
-		MPushClient.I.initClient(allocServer, publicKey, "11111", "Android", "5.0", "3.1", "user001", tokenDir,
+		MPushClient.I.initClient(allocServer, publicKey, "11111", "Android", "5.0", "3.1", "10001", tokenDir,
 				new L());
 		MPushClient client = MPushClient.I;
 		client.start();
+//		Thread.sleep(2000);
+//		client.handshake();
 		
 		Thread.sleep(3000);
 
-		client.sendMsg("HelloMessage", "user002", new R());
+		
+//		client.sendMsg("HelloMessage111111", "user002", new R());
 
 		LockSupport.park();
 	}
@@ -81,6 +89,27 @@ public class MPushClientTest {
 				}
 			});
 			thread.start();
+			
+			HttpRequest req = new HttpRequest(HttpMethod.POST, "http://127.0.0.1:8080/webserver/supplier/sendMessage.do");
+			String para = "{\"srcUserAccountId\":1000,\"destUserAccountId\":10001,\"prevMessageId\":0,\"messageType\":1,\"content\":\"Hello World\",\"refMessageType\":1}";
+			req.setBody(para.getBytes());
+			req.setTimeout(100); // 必须要设置，否则立刻从队列中移除！！
+			req.callback = new HttpCallback() {
+				
+				@Override
+				public void onResponse(HttpResponse response) {
+					if(response.statusCode == 200)
+						System.out.println(new String(response.body));
+				}
+				
+				@Override
+				public void onCancelled() {
+					// TODO Auto-generated method stub
+					
+				}
+			};
+			
+			client.sendHttp(req);
 		}
 
 		@Override

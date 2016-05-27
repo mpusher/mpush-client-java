@@ -24,13 +24,13 @@ import com.mpush.api.Constants;
 import com.mpush.api.Logger;
 import com.mpush.api.connection.SessionContext;
 import com.mpush.api.connection.SessionStorage;
+import com.mpush.api.http.HttpMethod;
 import com.mpush.api.http.HttpRequest;
 import com.mpush.api.http.HttpResponse;
 import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
 import com.mpush.handler.HttpProxyHandler;
 import com.mpush.message.BindUserMessage;
-import com.mpush.message.ChatMessage;
 import com.mpush.message.FastConnectMessage;
 import com.mpush.message.HandshakeMessage;
 import com.mpush.message.HttpRequestMessage;
@@ -60,7 +60,7 @@ public final class MPushClient implements Client {
 
 	private final MessageDispatcher receiver;
 	private final NioConnection connection;
-	
+
 	private static final Logger logger = new DefaultLogger(MPushClient.class);
 
 	private SocketChannel channel;
@@ -75,7 +75,7 @@ public final class MPushClient implements Client {
 	public MPushClient() {
 		this.receiver = new MessageDispatcher();
 		this.connection = new NioConnection(this, receiver);
-		
+
 		this.requestQueue = new HttpRequestQueue();
 		this.receiver.register(Command.HTTP_PROXY, new HttpProxyHandler(requestQueue));
 	}
@@ -111,6 +111,8 @@ public final class MPushClient implements Client {
 		ClientConfig.I.setUserId(userId);
 		ClientConfig.I.setSessionStorageDir(tokenDir);
 		ClientConfig.I.setClientListener(listener);
+		//		lastServerAddress = new String[1];
+		//		lastServerAddress[0] = allocUrl;
 		this.isInit = true;
 	}
 
@@ -277,15 +279,24 @@ public final class MPushClient implements Client {
 				public void run() {
 					if (clientState.get() != State.Starting)
 						return;
-//					String[] address = lastServerAddress == null ? getServerAddress() : lastServerAddress;
-					String[] address = new String[] {"106.75.7.156:3000"};
+					String[] address = lastServerAddress == null ? getServerAddress() : lastServerAddress;
+					
 					if (address != null && address.length > 0) {
 						for (String hp : address) {
+							logger.w("get server address: " + hp);
+							if(hp.startsWith("\"") || hp.endsWith("\"")){
+								hp = hp.replaceAll("\"","");
+							}
+							logger.w("replace server address: " + hp);
 							String[] hpa = hp.split(":");
+							logger.w("get server address: " + hp);
 							if (hpa.length != 2)
 								continue;
 							String host = hpa[0];
+							logger.w("port is: " + hpa[1]);
 							int port = Strings.toInt(hpa[1], 0);
+//							port = Integer.valueOf(hpa[1]).intValue();
+							logger.w("get server address:" + host + ":" + port);
 							if (clientState.get() != State.Starting)
 								return;
 							if (connect(host, port)) {
@@ -460,12 +471,18 @@ public final class MPushClient implements Client {
 	@Override
 	public void sendMsg(String content, String userId, MPushCallback callback) {
 		logger.d("send message request:%s, %s", content, userId);
-		ChatMessage message = new ChatMessage(userId,content,connection);
-		connection.getSessionContext().setCallBack(callback);
-		connection.getSessionContext().setUserId(userId);
-		message.content = content;
-		message.destUserId = userId;
-		message.send();
+		//		ChatMessage message = new ChatMessage(userId, content, connection);
+		//		connection.getSessionContext().setCallBack(callback);
+		//		connection.getSessionContext().setUserId(userId);
+		//		message.content = content;
+		//		message.destUserId = userId;
+		//		message.send();
+		HttpRequest req = new HttpRequest(HttpMethod.GET,
+				"http://cafe.bicaijia.com/cafe/sendmesage.do?");
+		req.setTimeout(5000); // 必须要设置，否则立刻从队列中移除！！
+		req.setBody(content.getBytes());
+		req.callback = callback;
+		this.sendHttp(req);
 	}
 
 	EventLock getConnLock() {
