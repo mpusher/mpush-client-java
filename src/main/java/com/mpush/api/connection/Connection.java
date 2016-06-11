@@ -11,6 +11,8 @@ import java.nio.channels.SocketChannel;
  */
 public interface Connection {
 
+    void connect();
+
     SessionContext getSessionContext();
 
     void send(Packet packet);

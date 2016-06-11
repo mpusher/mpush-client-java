@@ -2,8 +2,15 @@ package com.mpush.client;
 
 import com.mpush.api.Client;
 import com.mpush.api.ClientListener;
+import com.mpush.api.Constants;
+import com.mpush.api.http.HttpCallback;
+import com.mpush.api.http.HttpMethod;
+import com.mpush.api.http.HttpRequest;
+import com.mpush.api.http.HttpResponse;
 import com.mpush.util.DefaultLogger;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.locks.LockSupport;
 
 /**
@@ -26,15 +33,13 @@ public class MPushClientTest {
                 .setSessionStorageDir(MPushClientTest.class.getResource("/").getFile())
                 .setLogger(new DefaultLogger())
                 .setLogEnabled(true)
-                .setEnableHttpProxy(false)
+                .setEnableHttpProxy(true)
                 .setClientListener(new L())
                 .create();
         client.start();
 
         LockSupport.park();
     }
-
-
 
 
     public static class L implements ClientListener {
@@ -67,6 +72,28 @@ public class MPushClientTest {
                 }
             });
             thread.start();
+            Map<String, String> headers = new HashMap<>();
+            headers.put("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+            HttpRequest request = new HttpRequest(HttpMethod.POST, "http://test.supplier.bicaijia.com/supplier/sendMessage.do");
+            request.headers = headers;
+            request.body = "srcUserAccountId=5992&destUserAccountId=1796&prevMessageId=0&messageType=0&content=irirjj&refMessageType=0".getBytes(Constants.UTF_8);
+            request.timeout = 10000;
+            request.callback = new HttpCallback() {
+                @Override
+                public void onResponse(HttpResponse response) {
+                    if (response.statusCode == 200 && response.body != null) {
+                        System.out.println(new String(response.body, Constants.UTF_8));
+                    } else {
+                        System.out.println(response);
+                    }
+                }
+
+                @Override
+                public void onCancelled() {
+
+                }
+            };
+            client.sendHttp(request);
         }
 
         @Override
