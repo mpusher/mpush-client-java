@@ -1,4 +1,24 @@
+/*
+ * (C) Copyright 2015-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *     ohun@live.cn (夜色)
+ */
+
 package com.mpush.client;
+
 
 import com.mpush.api.Client;
 import com.mpush.api.ClientListener;
@@ -15,6 +35,8 @@ import java.util.concurrent.locks.LockSupport;
 
 /**
  * Created by ohun on 2016/1/25.
+ *
+ * @author ohun@live.cn (夜色)
  */
 public class MPushClientTest {
     private static final String publicKey = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCghPCWCobG8nTD24juwSVataW7iViRxcTkey/B792VZEhuHjQvA3cAJgx2Lv8GnX8NIoShZtoCg3Cx6ecs+VEPD2fBcg2L4JK7xldGpOJ3ONEAyVsLOttXZtNXvyDZRijiErQALMTorcgi79M5uVX9/jMv2Ggb2XAeZhlLD28fHwIDAQAB";
@@ -24,12 +46,16 @@ public class MPushClientTest {
         Client client = ClientConfig
                 .build()
                 .setPublicKey(publicKey)
-                .setAllotServer(allocServer)
+                //.setAllotServer(allocServer)
+                .setServerHost("111.1.57.148")
+                .setServerPort(20882)
                 .setDeviceId("1111111111")
                 .setOsName("Android")
                 .setOsVersion("6.0")
                 .setClientVersion("2.0")
                 .setUserId("doctor43test")
+                .setMaxHeartbeat(10000)
+                .setMinHeartbeat(10000)
                 .setSessionStorageDir(MPushClientTest.class.getResource("/").getFile())
                 .setLogger(new DefaultLogger())
                 .setLogEnabled(true)
@@ -68,32 +94,17 @@ public class MPushClientTest {
                             break;
                         }
                         client.healthCheck();
+                        client.stop();
+                        try {
+                            Thread.sleep(3000);
+                        } catch (InterruptedException e) {
+                            break;
+                        }
+                        client.start();
                     }
                 }
             });
             thread.start();
-            Map<String, String> headers = new HashMap<>();
-            headers.put("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-            HttpRequest request = new HttpRequest(HttpMethod.POST, "http://test.supplier.bicaijia.com/supplier/sendMessage.do");
-            request.headers = headers;
-            request.body = "srcUserAccountId=5992&destUserAccountId=1796&prevMessageId=0&messageType=0&content=irirjj&refMessageType=0".getBytes(Constants.UTF_8);
-            request.timeout = 10000;
-            request.callback = new HttpCallback() {
-                @Override
-                public void onResponse(HttpResponse response) {
-                    if (response.statusCode == 200 && response.body != null) {
-                        System.out.println(new String(response.body, Constants.UTF_8));
-                    } else {
-                        System.out.println(response);
-                    }
-                }
-
-                @Override
-                public void onCancelled() {
-
-                }
-            };
-            client.sendHttp(request);
         }
 
         @Override

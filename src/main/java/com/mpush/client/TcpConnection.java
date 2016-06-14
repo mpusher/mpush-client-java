@@ -1,4 +1,24 @@
+/*
+ * (C) Copyright 2015-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *     ohun@live.cn (夜色)
+ */
+
 package com.mpush.client;
+
 
 import com.mpush.api.*;
 import com.mpush.api.connection.Connection;
@@ -9,7 +29,6 @@ import com.mpush.codec.AsyncPacketWriter;
 import com.mpush.util.IOUtils;
 import com.mpush.util.Strings;
 import com.mpush.util.thread.EventLock;
-import com.mpush.util.thread.ExecutorManager;
 
 import java.net.InetSocketAddress;
 import java.nio.channels.Channel;
@@ -17,24 +36,26 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.mpush.api.Constants.MAX_RESTART_COUNT;
 import static com.mpush.api.Constants.MAX_TOTAL_RESTART_COUNT;
-import static com.mpush.client.NioConnection.State.*;
+import static com.mpush.client.TcpConnection.State.*;
+import static java.net.StandardSocketOptions.SO_KEEPALIVE;
+import static java.net.StandardSocketOptions.TCP_NODELAY;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * Created by ohun on 2016/1/21.
+ *
+ * @author ohun@live.cn (夜色)
  */
-public final class NioConnection implements Connection {
+public final class TcpConnection implements Connection {
+    public enum State {connecting, connected, disconnecting, disconnected}
+
     private final AtomicReference<State> state = new AtomicReference(disconnected);
-    private final ThreadPoolExecutor executor = ExecutorManager.INSTANCE.getStartThread();
     private final EventLock connLock = new EventLock();
-    private volatile int restartCount = 1;
     private final ClientConfig config;
     private final Logger logger;
     private final ClientListener listener;
@@ -46,39 +67,67 @@ public final class NioConnection implements Connection {
     private SessionContext context;
     private long lastReadTime;
     private long lastWriteTime;
-    private int hbTimeoutTimes;
-    private int totalRestartCount;
-    private Future<?> currentTask;
     private ConnectThread connectThread;
+    private int totalReconnectCount;
+    private volatile int reconnectCount = 0;
+    private volatile boolean autoConnect = true;
 
-    public enum State {connecting, connected, disconnecting, disconnected}
-
-    public NioConnection(MPushClient client, PacketReceiver receiver) {
+    public TcpConnection(MPushClient client, PacketReceiver receiver) {
         this.client = client;
         this.config = ClientConfig.I;
         this.logger = config.getLogger();
         this.listener = config.getClientListener();
         this.allotClient = new AllotClient();
         this.reader = new AsyncPacketReader(this, receiver);
-        this.writer = new AsyncPacketWriter(this, client.getConnLock());
+        this.writer = new AsyncPacketWriter(this, connLock);
     }
 
-    private void init(SocketChannel channel) {
-        this.restartCount = 1;
+    private void onConnected(SocketChannel channel) {
+        this.reconnectCount = 0;
         this.channel = channel;
         this.context = new SessionContext();
         this.state.set(connected);
         this.reader.startRead();
+        listener.onConnected(client);
+        logger.w("connection connected !!!");
     }
 
+    @Override
+    public void close() {
+        if (state.compareAndSet(connected, disconnecting)) {
+            reader.stopRead();
+            if (connectThread != null) {
+                connectThread.shutdown();
+            }
+            doClose();
+            logger.w("connection closed !!!");
+        }
+    }
+
+    private void doClose() {
+        connLock.lock();
+        try {
+            Channel channel = this.channel;
+            if (channel != null) {
+                if (channel.isOpen()) {
+                    IOUtils.close(channel);
+                    listener.onDisConnected(client);
+                    logger.w("channel closed !!!");
+                }
+                this.channel = null;
+            }
+        } finally {
+            state.set(disconnected);
+            connLock.unlock();
+        }
+    }
 
     @Override
     public void connect() {
         if (state.compareAndSet(disconnected, connecting)) {
             if ((connectThread == null) || !connectThread.isAlive()) {
-                connectThread = new ConnectThread(connLock);
+                connectThread = new ConnectThread();
             }
-
             connectThread.addConnectTask(new Callable<Boolean>() {
                 @Override
                 public Boolean call() throws Exception {
@@ -94,54 +143,58 @@ public final class NioConnection implements Connection {
         connect();
     }
 
-    @Override
-    public void close() {
-        if (state.compareAndSet(connected, disconnecting)) {
-            reader.stopRead();
-            if(connectThread!)
-            doClose();
+    private boolean doReconnect() {
+        if (totalReconnectCount > MAX_TOTAL_RESTART_COUNT || !autoConnect) {// 过载保护
+            logger.w("doReconnect failure reconnect count over limit or autoConnect off, total=%d, state=%s, autoConnect=%b"
+                    , totalReconnectCount, state.get(), autoConnect);
+            state.set(State.disconnected);
+            return true;
         }
-    }
 
-    private void doClose() {
+        reconnectCount++;    // 记录重连次数
+        totalReconnectCount++;
+
         connLock.lock();
-
+        logger.d("try doReconnect, count=%d, total=%d, autoConnect=%b, state=%s", reconnectCount, totalReconnectCount, autoConnect, state.get());
         try {
-            Channel channel = this.channel;
-
-            if (channel != null) {
-                if (channel.isOpen()) {
-                    IOUtils.close(channel);
-                    listener.onDisConnected(client);
-                    logger.w("channel closed !!!");
+            if (reconnectCount > MAX_RESTART_COUNT) {    // 超过此值 sleep 10min
+                if (connLock.await(MINUTES.toMillis(10))) {
+                    state.set(State.disconnected);
+                    return true;
                 }
-
-                this.channel = null;
+                reconnectCount = 0;
+            } else if (reconnectCount > 2) {             // 第二次重连时开始按秒sleep，然后重试
+                if (connLock.await(SECONDS.toMillis(reconnectCount))) {
+                    state.set(State.disconnected);
+                    return true;
+                }
             }
         } finally {
-            state.set(disconnected);
             connLock.unlock();
         }
-    }
 
+        if (Thread.currentThread().isInterrupted() || state.get() != connecting || !autoConnect) {
+            logger.w("doReconnect failure, count=%d, total=%d, autoConnect=%b, state=%s", reconnectCount, totalReconnectCount, autoConnect, state.get());
+            state.set(State.disconnected);
+            return true;
+        }
+
+        logger.w("doReconnect, count=%d, total=%d, autoConnect=%b, state=%s", reconnectCount, totalReconnectCount, autoConnect, state.get());
+        return doConnect();
+    }
 
     private boolean doConnect() {
         List<String> address = allotClient.getServerAddress();
-
-        if ((address != null) && (address.size() > 0)) {
+        if (address != null && address.size() > 0) {
             Iterator<String> it = address.iterator();
-
             while (it.hasNext()) {
                 String[] host_port = it.next().split(":");
-
                 if (host_port.length == 2) {
+
                     String host = host_port[0];
                     int port = Strings.toInt(host_port[1], 0);
 
                     if (doConnect(host, port)) {
-                        logger.w("client started !!!");
-                        listener.onConnected(client);
-
                         return true;
                     }
                 }
@@ -149,18 +202,19 @@ public final class NioConnection implements Connection {
                 it.remove();
             }
         }
-
         return false;
     }
 
     private boolean doConnect(String host, int port) {
         connLock.lock();
         logger.w("try connect server [%s:%s]", host, port);
-
+        SocketChannel channel = null;
         try {
             channel = SocketChannel.open();
+            channel.setOption(TCP_NODELAY, true);
+            channel.setOption(SO_KEEPALIVE, true);
             channel.connect(new InetSocketAddress(host, port));
-            init(channel);
+            onConnected(channel);
             connLock.signalAll();
             connLock.unlock();
             logger.w("connect server ok [%s:%s]", host, port);
@@ -170,55 +224,14 @@ public final class NioConnection implements Connection {
             connLock.unlock();
             logger.e(t, "connect server ex, [%s:%s]", host, port);
         }
-
         return false;
     }
 
-    private boolean doReconnect() {
-        if (totalRestartCount > MAX_TOTAL_RESTART_COUNT) {    // 过载保护
-            logger.w("client total doReconnect count over limit, totalRestartCount=%d, currentState=%s",
-                    totalRestartCount,
-                    state.get());
-
-            return true;
-        }
-
-        restartCount++;    // 记录重连次数
-        totalRestartCount++;
-        connLock.lock();
-        logger.d("try doReconnect client count=%d, total=%d, t=%s",
-                restartCount,
-                totalRestartCount,
-                Thread.currentThread());
-
-        try {
-            if (restartCount > MAX_RESTART_COUNT) {    // 超过此值 sleep 10min
-                if (connLock.await(MINUTES.toMillis(10))) {
-                    return false;
-                }
-
-                restartCount = 1;
-            } else if (restartCount > 2) {             // 第二次重连时开始按秒sleep，然后重试
-                if (connLock.await(SECONDS.toMillis(restartCount))) {
-                    return false;
-                }
-            }
-        } finally {
-            connLock.unlock();
-        }
-
-        if (Thread.currentThread().isInterrupted() || state.get() != connecting) {
-            logger.w("2 doReconnect failure state=%s", state.get());
-
-            return true;
-        }
-
-        logger.w("do doReconnect client count=%d, total=%d, t=%s",
-                restartCount,
-                totalRestartCount,
-                Thread.currentThread());
-
-        return doConnect();
+    public void setAutoConnect(boolean autoConnect) {
+        this.connLock.lock();
+        this.autoConnect = autoConnect;
+        this.connLock.signalAll();
+        this.connLock.unlock();
     }
 
     @Override
@@ -269,7 +282,7 @@ public final class NioConnection implements Connection {
 
     @Override
     public String toString() {
-        return "NioConnection{" + ", lastReadTime=" + lastReadTime + ", lastWriteTime=" + lastWriteTime + ", context="
+        return "TcpConnection{" + ", lastReadTime=" + lastReadTime + ", lastWriteTime=" + lastWriteTime + ", context="
                 + context + '}';
     }
 }

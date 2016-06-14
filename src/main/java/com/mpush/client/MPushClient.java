@@ -1,7 +1,26 @@
+/*
+ * (C) Copyright 2015-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *     ohun@live.cn (夜色)
+ */
+
 package com.mpush.client;
 
+
 import com.mpush.api.Client;
-import com.mpush.api.ClientListener;
 import com.mpush.api.Logger;
 import com.mpush.api.connection.SessionContext;
 import com.mpush.api.connection.SessionStorage;
@@ -17,76 +36,59 @@ import com.mpush.message.HttpRequestMessage;
 import com.mpush.security.AesCipher;
 import com.mpush.security.CipherBox;
 import com.mpush.session.PersistentSession;
-import com.mpush.util.IOUtils;
 import com.mpush.util.Strings;
-import com.mpush.util.thread.EventLock;
 import com.mpush.util.thread.ExecutorManager;
 
-import java.net.InetSocketAddress;
-import java.nio.channels.Channel;
-import java.nio.channels.SocketChannel;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.mpush.api.Constants.*;
-import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * Created by ohun on 2016/1/17.
+ *
+ * @author ohun@live.cn (夜色)
  */
 public final class MPushClient implements Client {
-    public enum State {Starting, Started, Shutdown, Restarting, Destroyed}
-
+    public enum State {Started, Shutdown, Destroyed}
 
     private final AtomicReference<State> clientState = new AtomicReference(State.Shutdown);
 
-
     private final MessageDispatcher receiver;
-    private final NioConnection connection;
+    private final TcpConnection connection;
     private final ClientConfig config;
     private final Logger logger;
-    private final ClientListener listener;
+    private int hbTimeoutTimes;
 
     private HttpRequestQueue requestQueue;
 
     /*package*/ MPushClient(ClientConfig config) {
         this.config = config;
         this.logger = config.getLogger();
-        this.listener = config.getClientListener();
         this.receiver = new MessageDispatcher();
-        this.connection = new NioConnection(this, receiver);
+        this.connection = new TcpConnection(this, receiver);
         if (config.isEnableHttpProxy()) {
             this.requestQueue = new HttpRequestQueue();
             this.receiver.register(Command.HTTP_PROXY, new HttpProxyHandler(requestQueue));
         }
     }
 
-
-
-
-
     @Override
     public void start() {
-
+        if (clientState.compareAndSet(State.Shutdown, State.Started)) {
+            connection.setAutoConnect(true);
+            connection.connect();
+            logger.w("do start client ...");
+        }
     }
 
     @Override
     public void stop() {
-        connLock.lock();
         logger.w("client shutdown !!!, state=%s", clientState.get());
-        autoRestart = false;
-        if (clientState.get() != State.Shutdown) {
-            clientState.set(State.Shutdown);
+        if (clientState.compareAndSet(State.Started, State.Shutdown)) {
+            connection.setAutoConnect(false);
             connection.close();
-            restartCount = 1;
-            totalRestartCount = 0;
-            connLock.signalAll();
         }
-        connLock.unlock();
     }
 
     @Override
@@ -101,7 +103,7 @@ public final class MPushClient implements Client {
 
     @Override
     public boolean isRunning() {
-        return clientState.get() == State.Started;
+        return clientState.get() == State.Started && connection.isConnected();
     }
 
     @Override
@@ -117,7 +119,7 @@ public final class MPushClient implements Client {
         if (hbTimeoutTimes >= MAX_HB_TIMEOUT_COUNT) {
             logger.w("heartbeat timeout times=%d over limit=%d, client restart", hbTimeoutTimes, MAX_HB_TIMEOUT_COUNT);
             hbTimeoutTimes = 0;
-            restart();
+            connection.reconnect();
             return false;
         }
 
@@ -225,9 +227,5 @@ public final class MPushClient implements Client {
             return requestQueue.add(message.getSessionId(), request);
         }
         return null;
-    }
-
-    EventLock getConnLock() {
-        return connLock;
     }
 }
