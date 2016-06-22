@@ -47,6 +47,8 @@ public final class HandshakeOkHandler extends BaseMessageHandler<HandshakeOkMess
 
     @Override
     public void handle(HandshakeOkMessage message) {
+        logger.w(">>> handshake ok message=%s", message);
+
         Connection connection = message.getConnection();
         SessionContext context = connection.getSessionContext();
         byte[] serverKey = message.serverKey;
@@ -70,7 +72,7 @@ public final class HandshakeOkHandler extends BaseMessageHandler<HandshakeOkMess
 
         //保存token
         saveToken(message, context);
-        logger.w("<<< handshake ok message=%s, context=%s", message, context);
+
     }
 
     private void saveToken(HandshakeOkMessage message, SessionContext context) {

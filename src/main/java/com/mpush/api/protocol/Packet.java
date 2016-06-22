@@ -66,7 +66,7 @@ public final class Packet {
         return body == null ? 0 : body.length;
     }
 
-    public void setFlag(byte flag) {
+    public void addFlag(byte flag) {
         this.flags |= flag;
     }
 

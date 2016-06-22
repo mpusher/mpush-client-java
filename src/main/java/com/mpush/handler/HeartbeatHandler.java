@@ -37,6 +37,6 @@ public final class HeartbeatHandler implements MessageHandler {
 
     @Override
     public void handle(Packet packet, Connection connection) {
-        logger.d("<<< receive heartbeat pong...");
+        logger.d(">>> receive heartbeat pong...");
     }
 }

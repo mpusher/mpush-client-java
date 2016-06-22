@@ -42,9 +42,10 @@ public final class FastConnectOkHandler extends BaseMessageHandler<FastConnectOk
 
     @Override
     public void handle(FastConnectOkMessage message) {
+        logger.w(">>> fast connect ok, message=%s", message);
         message.getConnection().getSessionContext().setHeartbeat(message.heartbeat);
         ClientListener listener = ClientConfig.I.getClientListener();
         listener.onHandshakeOk(message.getConnection().getClient(), message.heartbeat);
-        logger.w("<<< fast connect ok, message=%s", message);
+
     }
 }

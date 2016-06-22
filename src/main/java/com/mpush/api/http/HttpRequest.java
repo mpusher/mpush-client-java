@@ -20,7 +20,14 @@
 package com.mpush.api.http;
 
 
+import com.mpush.api.Constants;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 import static com.mpush.api.Constants.HTTP_HEAD_READ_TIMEOUT;
 
@@ -30,12 +37,14 @@ import static com.mpush.api.Constants.HTTP_HEAD_READ_TIMEOUT;
  * @author ohun@live.cn
  */
 public final class HttpRequest {
+    public static final String CONTENT_TYPE = "Content-Type";
+    public static final String CONTENT_TYPE_FORM = "application/x-www-form-urlencoded; charset=";
     public final byte method;
     public final String uri;
-    public Map<String, String> headers;
-    public byte[] body;
-    public HttpCallback callback;
-    public int timeout;
+    private Map<String, String> headers = new HashMap<>();
+    private byte[] body;
+    private HttpCallback callback;
+    private int timeout;
 
     public HttpRequest(byte method, String uri) {
         this.method = method;
@@ -71,11 +80,12 @@ public final class HttpRequest {
     }
 
     public Map<String, String> getHeaders() {
+        headers.put(HTTP_HEAD_READ_TIMEOUT, Integer.toString(timeout));
         return headers;
     }
 
     public HttpRequest setHeaders(Map<String, String> headers) {
-        this.headers = headers;
+        this.getHeaders().putAll(headers);
         return this;
     }
 
@@ -83,8 +93,20 @@ public final class HttpRequest {
         return body;
     }
 
-    public HttpRequest setBody(byte[] body) {
+    public HttpRequest setBody(byte[] body, String contentType) {
         this.body = body;
+        this.headers.put(CONTENT_TYPE, contentType);
+        return this;
+    }
+
+    public HttpRequest setPostParam(Map<String, String> headers, Charset paramsEncoding) {
+        byte[] bytes = encodeParameters(headers, paramsEncoding.name());
+        setBody(bytes, CONTENT_TYPE_FORM + paramsEncoding.name());
+        return this;
+    }
+
+    public HttpRequest setPostParam(Map<String, String> headers) {
+        setPostParam(headers, Constants.UTF_8);
         return this;
     }
 
@@ -103,10 +125,25 @@ public final class HttpRequest {
 
     public HttpRequest setTimeout(int timeout) {
         this.timeout = timeout;
-        if (headers != null) {
-            headers.put(HTTP_HEAD_READ_TIMEOUT, Integer.toString(timeout));
-        }
         return this;
+    }
+
+    /**
+     * Converts <code>params</code> into an application/x-www-form-urlencoded encoded string.
+     */
+    private byte[] encodeParameters(Map<String, String> params, String paramsEncoding) {
+        StringBuilder encodedParams = new StringBuilder();
+        try {
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                encodedParams.append(URLEncoder.encode(entry.getKey(), paramsEncoding));
+                encodedParams.append('=');
+                encodedParams.append(URLEncoder.encode(entry.getValue(), paramsEncoding));
+                encodedParams.append('&');
+            }
+            return encodedParams.toString().getBytes(paramsEncoding);
+        } catch (UnsupportedEncodingException uee) {
+            throw new RuntimeException("Encoding not supported: " + paramsEncoding, uee);
+        }
     }
 
     @Override

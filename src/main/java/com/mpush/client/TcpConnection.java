@@ -88,8 +88,8 @@ public final class TcpConnection implements Connection {
         this.context = new SessionContext();
         this.state.set(connected);
         this.reader.startRead();
-        listener.onConnected(client);
         logger.w("connection connected !!!");
+        listener.onConnected(client);
     }
 
     @Override
@@ -126,7 +126,7 @@ public final class TcpConnection implements Connection {
     public void connect() {
         if (state.compareAndSet(disconnected, connecting)) {
             if ((connectThread == null) || !connectThread.isAlive()) {
-                connectThread = new ConnectThread();
+                connectThread = new ConnectThread(connLock);
             }
             connectThread.addConnectTask(new Callable<Boolean>() {
                 @Override
@@ -154,23 +154,19 @@ public final class TcpConnection implements Connection {
         reconnectCount++;    // 记录重连次数
         totalReconnectCount++;
 
-        connLock.lock();
         logger.d("try doReconnect, count=%d, total=%d, autoConnect=%b, state=%s", reconnectCount, totalReconnectCount, autoConnect, state.get());
-        try {
-            if (reconnectCount > MAX_RESTART_COUNT) {    // 超过此值 sleep 10min
-                if (connLock.await(MINUTES.toMillis(10))) {
-                    state.set(State.disconnected);
-                    return true;
-                }
-                reconnectCount = 0;
-            } else if (reconnectCount > 2) {             // 第二次重连时开始按秒sleep，然后重试
-                if (connLock.await(SECONDS.toMillis(reconnectCount))) {
-                    state.set(State.disconnected);
-                    return true;
-                }
+
+        if (reconnectCount > MAX_RESTART_COUNT) {    // 超过此值 sleep 10min
+            if (connLock.await(MINUTES.toMillis(10))) {
+                state.set(State.disconnected);
+                return true;
             }
-        } finally {
-            connLock.unlock();
+            reconnectCount = 0;
+        } else if (reconnectCount > 2) {             // 第二次重连时开始按秒sleep，然后重试
+            if (connLock.await(SECONDS.toMillis(reconnectCount))) {
+                state.set(State.disconnected);
+                return true;
+            }
         }
 
         if (Thread.currentThread().isInterrupted() || state.get() != connecting || !autoConnect) {
@@ -214,10 +210,10 @@ public final class TcpConnection implements Connection {
             channel.setOption(TCP_NODELAY, true);
             channel.setOption(SO_KEEPALIVE, true);
             channel.connect(new InetSocketAddress(host, port));
+            logger.w("connect server ok [%s:%s]", host, port);
             onConnected(channel);
             connLock.signalAll();
             connLock.unlock();
-            logger.w("connect server ok [%s:%s]", host, port);
             return true;
         } catch (Throwable t) {
             IOUtils.close(channel);

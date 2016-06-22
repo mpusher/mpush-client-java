@@ -93,11 +93,12 @@ public final class MPushClient implements Client {
 
     @Override
     public void destroy() {
-        if (clientState.getAndSet(State.Destroyed) != State.Destroyed) {
+        if (clientState.get() != State.Destroyed) {
             this.stop();
             logger.w("client destroy !!!");
             ExecutorManager.INSTANCE.shutdown();
             ClientConfig.I.destroy();
+            clientState.set(State.Destroyed);
         }
     }
 
@@ -124,7 +125,7 @@ public final class MPushClient implements Client {
         }
 
         if (connection.isWriteTimeout()) {
-            logger.d(">>> send heartbeat ping...");
+            logger.d("<<< send heartbeat ping...");
             connection.send(Packet.HB_PACKET);
         }
 
@@ -160,7 +161,7 @@ public final class MPushClient implements Client {
         message.minHeartbeat = config.getMinHeartbeat();
         message.sendRaw();
         connection.getSessionContext().changeCipher(session.cipher);
-        logger.w(">>> do fast connect, message=%s", message);
+        logger.w("<<< do fast connect, message=%s", message);
     }
 
     @Override
@@ -178,7 +179,7 @@ public final class MPushClient implements Client {
         message.minHeartbeat = config.getMinHeartbeat();
         message.send();
         context.changeCipher(new AesCipher(message.clientKey, message.iv));
-        logger.w(">>> do handshake, message=%s", message);
+        logger.w("<<< do handshake, message=%s", message);
     }
 
     @Override
@@ -195,7 +196,7 @@ public final class MPushClient implements Client {
                 .buildBind(connection)
                 .setUserId(userId)
                 .send();
-        logger.w(">>> do bind user, userId=%s", userId);
+        logger.w("<<< do bind user, userId=%s", userId);
     }
 
     @Override
@@ -211,19 +212,19 @@ public final class MPushClient implements Client {
                 .buildUnbind(connection)
                 .setUserId(userId)
                 .send();
-        logger.w(">>> do unbind user, userId=%s", userId);
+        logger.w("<<< do unbind user, userId=%s", userId);
     }
 
     @Override
     public Future<HttpResponse> sendHttp(HttpRequest request) {
         if (connection.getSessionContext().handshakeOk()) {
             HttpRequestMessage message = new HttpRequestMessage(connection);
-            message.method = request.method;
-            message.uri = request.uri;
-            message.headers = request.headers;
-            message.body = request.body;
+            message.method = request.getMethod();
+            message.uri = request.getUri();
+            message.headers = request.getHeaders();
+            message.body = request.getBody();
             message.send();
-            logger.d(">>> send http proxy, request=%s", request);
+            logger.d("<<< send http proxy, request=%s", request);
             return requestQueue.add(message.getSessionId(), request);
         }
         return null;

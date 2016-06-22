@@ -47,12 +47,12 @@ public final class HttpRequestQueue {
     private final Map<Integer, RequestTask> queue = new ConcurrentHashMap<>();
     private final ScheduledExecutorService timer = ExecutorManager.INSTANCE.getHttpRequestThread();
     private final Executor executor = ExecutorManager.INSTANCE.getDispatchThread();
-    private final HttpResponse response404 = new HttpResponse(HTTP_NOT_FOUND, "Not Found", null, null);
+    //private final HttpResponse response404 = new HttpResponse(HTTP_NOT_FOUND, "Not Found", null, null);
     private final HttpResponse response408 = new HttpResponse(HTTP_CLIENT_TIMEOUT, "Request Timeout", null, null);
     private final Callable<HttpResponse> NONE = new Callable<HttpResponse>() {
         @Override
         public HttpResponse call() throws Exception {
-            return response404;
+            return response408;
         }
     };
     private final Logger logger = ClientConfig.I.getLogger();
@@ -78,8 +78,8 @@ public final class HttpRequestQueue {
 
         private RequestTask(int sessionId, HttpRequest request) {
             super(NONE);
-            this.callback = request.callback;
-            this.timeout = request.timeout;
+            this.callback = request.getCallback();
+            this.timeout = request.getTimeout();
             this.uri = request.uri;
             this.sendTime = System.currentTimeMillis();
             this.sessionId = sessionId;
@@ -90,6 +90,7 @@ public final class HttpRequestQueue {
             boolean success = super.cancel(mayInterruptIfRunning);
             if (success) {
                 if (future.cancel(true)) {
+                    queue.remove(sessionId);
                     if (callback != null) {
                         executor.execute(new Runnable() {
                             @Override

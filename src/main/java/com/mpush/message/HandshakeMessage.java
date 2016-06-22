@@ -66,6 +66,7 @@ public final class HandshakeMessage extends ByteBufMessage {
         timestamp = decodeLong(body);
     }
 
+    @Override
     protected void encode(ByteBuf body) {
         encodeString(body, deviceId);
         encodeString(body, osName);

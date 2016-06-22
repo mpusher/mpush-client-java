@@ -54,6 +54,6 @@ public final class HttpProxyHandler extends BaseMessageHandler<HttpResponseMessa
             HttpResponse response = new HttpResponse(message.statusCode, message.reasonPhrase, message.headers, message.body);
             task.setResponse(response);
         }
-        logger.d("<<< receive one response, sessionId=%d, statusCode=%d", message.getSessionId(), message.statusCode);
+        logger.d(">>> receive one response, sessionId=%d, statusCode=%d", message.getSessionId(), message.statusCode);
     }
 }

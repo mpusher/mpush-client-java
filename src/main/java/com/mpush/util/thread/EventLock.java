@@ -54,6 +54,12 @@ public final class EventLock {
         cond.signalAll();
     }
 
+    public void broadcast() {
+        lock.lock();
+        cond.signalAll();
+        lock.unlock();
+    }
+
     public boolean await(long timeout) {
         lock.lock();
         try {

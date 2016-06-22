@@ -78,7 +78,7 @@ public abstract class BaseMessage implements Message {
                 byte[] result = IOUtils.compress(tmp);
                 if (result.length > 0) {
                     tmp = result;
-                    packet.setFlag(Packet.FLAG_COMPRESS);
+                    packet.addFlag(Packet.FLAG_COMPRESS);
                 }
             }
 
@@ -88,7 +88,7 @@ public abstract class BaseMessage implements Message {
                 byte[] result = context.cipher.encrypt(tmp);
                 if (result.length > 0) {
                     tmp = result;
-                    packet.setFlag(Packet.FLAG_CRYPTO);
+                    packet.addFlag(Packet.FLAG_CRYPTO);
                 }
             }
             packet.body = tmp;

@@ -26,6 +26,7 @@ package com.mpush.api;
  * @author ohun@live.cn (夜色)
  */
 public interface ClientListener {
+
     void onConnected(Client client);
 
     void onDisConnected(Client client);

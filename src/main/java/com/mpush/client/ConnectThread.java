@@ -20,6 +20,7 @@
 package com.mpush.client;
 
 
+import com.mpush.util.thread.EventLock;
 import com.mpush.util.thread.ExecutorManager;
 
 import java.util.concurrent.Callable;
@@ -32,8 +33,9 @@ import java.util.concurrent.Callable;
 public class ConnectThread extends Thread {
     private volatile Callable<Boolean> runningTask;
     private volatile boolean runningFlag = true;
-
-    public ConnectThread() {
+    private final EventLock connLock;
+    public ConnectThread(EventLock connLock) {
+        this.connLock = connLock;
         this.setName(ExecutorManager.START_THREAD_NAME);
         this.start();
     }
@@ -47,7 +49,7 @@ public class ConnectThread extends Thread {
         this.notify();
     }
 
-    public void shutdown() {
+    public synchronized void shutdown() {
         this.runningFlag = false;
         this.interrupt();
     }
@@ -71,5 +73,6 @@ public class ConnectThread extends Thread {
                 break;
             }
         }
+        //connLock.broadcast();
     }
 }

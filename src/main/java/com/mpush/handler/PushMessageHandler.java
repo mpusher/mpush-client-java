@@ -44,7 +44,7 @@ public final class PushMessageHandler extends BaseMessageHandler<PushMessage> {
 
     @Override
     public void handle(PushMessage message) {
-        logger.d("<<< receive a push message=%s", message.content);
+        logger.d(">>> receive push message=%s", message.content);
         listener.onReceivePush(message.getConnection().getClient(), message.content);
     }
 }

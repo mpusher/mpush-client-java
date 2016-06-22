@@ -31,6 +31,7 @@ import com.mpush.util.DefaultLogger;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
 /**
@@ -63,8 +64,6 @@ public class MPushClientTest {
                 .setClientListener(new L())
                 .create();
         client.start();
-
-        LockSupport.park();
     }
 
 
@@ -80,6 +79,7 @@ public class MPushClientTest {
         @Override
         public void onDisConnected(Client client) {
             flag = false;
+            thread.interrupt();
         }
 
         @Override
@@ -94,13 +94,13 @@ public class MPushClientTest {
                             break;
                         }
                         client.healthCheck();
-                        client.stop();
+                       /* client.stop();
                         try {
                             Thread.sleep(3000);
                         } catch (InterruptedException e) {
                             break;
                         }
-                        client.start();
+                        client.start();*/
                     }
                 }
             });

@@ -20,7 +20,6 @@
 package com.mpush.codec;
 
 
-import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
 
 import java.nio.ByteBuffer;
@@ -42,7 +41,7 @@ public final class PacketDecoder {
         if (in.hasRemaining()) {
             in.mark();
             if (in.get() == Packet.HB_PACKET_BYTE) {
-                return new Packet(Command.HEARTBEAT);
+                return Packet.HB_PACKET;
             }
             in.reset();
         }
