@@ -108,7 +108,7 @@ public class MPushClientTest {
         }
 
         @Override
-        public void onReceivePush(Client client, String content) {
+        public void onReceivePush(Client client, byte[] content) {
 
         }
 

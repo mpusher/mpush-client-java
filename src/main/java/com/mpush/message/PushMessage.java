@@ -20,7 +20,6 @@
 package com.mpush.message;
 
 
-
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
 import com.mpush.api.Constants;
@@ -32,27 +31,26 @@ import com.mpush.api.Constants;
  */
 public final class PushMessage extends BaseMessage {
 
-    public String content;
+    public byte[] content;
 
     public PushMessage(Packet packet, Connection connection) {
         super(packet, connection);
     }
 
-
     @Override
     public void decode(byte[] body) {
-        content = new String(body, Constants.UTF_8);
+        content = body;
     }
 
     @Override
     public byte[] encode() {
-        return content == null ? null : content.getBytes(Constants.UTF_8);
+        return content;
     }
 
     @Override
     public String toString() {
         return "PushMessage{" +
-                "content='" + content + '\'' +
+                "content='" + content.length + '\'' +
                 '}';
     }
 }

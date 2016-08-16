@@ -75,7 +75,7 @@ import java.util.concurrent.Executor;
     }
 
     @Override
-    public void onReceivePush(final Client client, final String content) {
+    public void onReceivePush(final Client client, final byte[] content) {
         if (listener != null) {
             listener.onReceivePush(client, content);
         }
