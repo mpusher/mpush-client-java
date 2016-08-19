@@ -20,7 +20,6 @@
 package com.mpush.message;
 
 
-
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
@@ -37,6 +36,7 @@ public final class ErrorMessage extends ByteBufMessage {
     public byte cmd;
     public byte code;
     public String reason;
+    public String data;
 
     public ErrorMessage(byte cmd, Packet message, Connection connection) {
         super(message, connection);
@@ -52,6 +52,7 @@ public final class ErrorMessage extends ByteBufMessage {
         cmd = decodeByte(body);
         code = decodeByte(body);
         reason = decodeString(body);
+        data = decodeString(body);
     }
 
     @Override
@@ -59,6 +60,7 @@ public final class ErrorMessage extends ByteBufMessage {
         encodeByte(body, cmd);
         encodeByte(body, code);
         encodeString(body, reason);
+        encodeString(body, data);
     }
 
     public static ErrorMessage from(BaseMessage src) {

@@ -38,7 +38,7 @@ public interface Constants {
 
     int DEF_COMPRESS_LIMIT = 1024;//1k 启用压缩阈值
 
-    String DEF_OS_NAME = "Android";//客户端OS
+    String DEF_OS_NAME = "android";//客户端OS
 
     int MAX_RESTART_COUNT = 10;//客户端重连次数超过该值，重连线程休眠10min后再重试
     int MAX_TOTAL_RESTART_COUNT = 1000;//客户端重连次数超过该值，将不再尝试重连
