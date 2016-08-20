@@ -41,8 +41,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import static com.mpush.api.Constants.MAX_RESTART_COUNT;
 import static com.mpush.api.Constants.MAX_TOTAL_RESTART_COUNT;
 import static com.mpush.client.TcpConnection.State.*;
-import static java.net.StandardSocketOptions.SO_KEEPALIVE;
-import static java.net.StandardSocketOptions.TCP_NODELAY;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -207,8 +205,8 @@ public final class TcpConnection implements Connection {
         SocketChannel channel = null;
         try {
             channel = SocketChannel.open();
-            channel.setOption(TCP_NODELAY, true);
-            channel.setOption(SO_KEEPALIVE, true);
+            channel.socket().setTcpNoDelay(true);
+            channel.socket().setKeepAlive(true);
             channel.connect(new InetSocketAddress(host, port));
             logger.w("connect server ok [%s:%s]", host, port);
             onConnected(channel);

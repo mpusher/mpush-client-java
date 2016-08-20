@@ -20,7 +20,6 @@
 package com.mpush.handler;
 
 
-
 import com.mpush.api.ClientListener;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
@@ -44,7 +43,7 @@ public final class PushMessageHandler extends BaseMessageHandler<PushMessage> {
 
     @Override
     public void handle(PushMessage message) {
-        logger.d(">>> receive push message=%s", message.content);
+        logger.d(">>> receive push messaged=%s", message.content.length);
         listener.onReceivePush(message.getConnection().getClient(), message.content);
     }
 }

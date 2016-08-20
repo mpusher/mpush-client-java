@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.mpush</groupId>
     <artifactId>mpush-client</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4</version>
     <packaging>jar</packaging>
     <licenses>
         <license>
