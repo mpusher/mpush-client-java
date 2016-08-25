@@ -4,6 +4,15 @@
 ## 用途
 #### 主要用于android sdk底层通信，该工程本身不包含任何android相关代码。
 
+## 当前版本
+```xml
+<dependency>
+    <groupId>com.github.mpusher</groupId>
+    <artifactId>mpush-client</artifactId>
+    <version>0.0.4</version>
+</dependency>
+```
+
 ## 源码测试
 
 参见 [`com.mpush.client.MPushClientTest.java`](https://github.com/mpusher/mpush-client-java/blob/master/src/test/java/com/mpush/client/MPushClientTest.java)
