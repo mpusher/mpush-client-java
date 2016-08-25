@@ -5,6 +5,11 @@
 #### 主要用于android sdk底层通信，该工程本身不包含任何android相关代码。
 
 ## 当前版本
+
+```groovy
+compile group: 'com.github.mpusher', name: 'mpush-client', version: '0.0.4'
+```
+
 ```xml
 <dependency>
     <groupId>com.github.mpusher</groupId>
