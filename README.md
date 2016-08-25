@@ -7,7 +7,7 @@
 ## 当前版本
 
 ```groovy
-compile group: 'com.github.mpusher', name: 'mpush-client', version: '0.0.4'
+compile 'com.github.mpusher:mpush-client:0.0.4'
 ```
 
 ```xml
