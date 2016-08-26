@@ -1,4 +1,24 @@
+/*
+ * (C) Copyright 2015-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *     ohun@live.cn (夜色)
+ */
+
 package com.mpush.message;
+
 
 
 import com.mpush.util.IOUtils;
@@ -12,6 +32,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by ohun on 2015/12/28.
+ *
+ * @author ohun@live.cn (夜色)
  */
 public abstract class BaseMessage implements Message {
     private static final AtomicInteger SID_SEQ = new AtomicInteger();
@@ -56,7 +78,7 @@ public abstract class BaseMessage implements Message {
                 byte[] result = IOUtils.compress(tmp);
                 if (result.length > 0) {
                     tmp = result;
-                    packet.setFlag(Packet.FLAG_COMPRESS);
+                    packet.addFlag(Packet.FLAG_COMPRESS);
                 }
             }
 
@@ -66,7 +88,7 @@ public abstract class BaseMessage implements Message {
                 byte[] result = context.cipher.encrypt(tmp);
                 if (result.length > 0) {
                     tmp = result;
-                    packet.setFlag(Packet.FLAG_CRYPTO);
+                    packet.addFlag(Packet.FLAG_CRYPTO);
                 }
             }
             packet.body = tmp;

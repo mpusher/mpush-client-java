@@ -1,4 +1,24 @@
+/*
+ * (C) Copyright 2015-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Contributors:
+ *     ohun@live.cn (夜色)
+ */
+
 package com.mpush.handler;
+
 
 import com.mpush.api.ClientListener;
 import com.mpush.api.connection.SessionStorage;
@@ -14,6 +34,8 @@ import com.mpush.security.CipherBox;
 
 /**
  * Created by ohun on 2016/1/23.
+ *
+ * @author ohun@live.cn (夜色)
  */
 public final class HandshakeOkHandler extends BaseMessageHandler<HandshakeOkMessage> {
     private final Logger logger = ClientConfig.I.getLogger();
@@ -25,6 +47,8 @@ public final class HandshakeOkHandler extends BaseMessageHandler<HandshakeOkMess
 
     @Override
     public void handle(HandshakeOkMessage message) {
+        logger.w(">>> handshake ok message=%s", message);
+
         Connection connection = message.getConnection();
         SessionContext context = connection.getSessionContext();
         byte[] serverKey = message.serverKey;
@@ -48,7 +72,7 @@ public final class HandshakeOkHandler extends BaseMessageHandler<HandshakeOkMess
 
         //保存token
         saveToken(message, context);
-        logger.w("<<< handshake ok message=%s, context=%s", message, context);
+
     }
 
     private void saveToken(HandshakeOkMessage message, SessionContext context) {
