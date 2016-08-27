@@ -47,4 +47,6 @@ public class MPushClientTest {
         LockSupport.park();
     }
 ```
-#### 说明allocServer的实现参照[AllocServer.java](https://github.com/mpusher/alloc/blob/master/src/main/java/com/shinemo/mpush/alloc/AllocServer.java)
+#### 说明:
+
+allocServer的实现参照[AllocServer.java](https://github.com/mpusher/alloc/blob/master/src/main/java/com/shinemo/mpush/alloc/AllocServer.java)
