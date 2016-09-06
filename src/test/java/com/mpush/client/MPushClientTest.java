@@ -48,8 +48,8 @@ public class MPushClientTest {
                 .build()
                 .setPublicKey(publicKey)
                 //.setAllotServer(allocServer)
-                .setServerHost("111.1.57.148")
-                .setServerPort(20882)
+                .setServerHost("127.0.0.1")
+                .setServerPort(3000)
                 .setDeviceId("1111111111")
                 .setOsName("Android")
                 .setOsVersion("6.0")
@@ -108,8 +108,8 @@ public class MPushClientTest {
         }
 
         @Override
-        public void onReceivePush(Client client, byte[] content) {
-
+        public void onReceivePush(Client client, byte[] content, int messageId) {
+            if (messageId > 0) client.ack(messageId);
         }
 
         @Override

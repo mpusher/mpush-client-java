@@ -48,6 +48,7 @@ public enum Command {
     GATEWAY_CHAT(20),
     GROUP(21),
     GATEWAY_GROUP(22),
+    ACK(23),
     UNKNOWN(-1);
 
     Command(int cmd) {

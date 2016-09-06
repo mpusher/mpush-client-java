@@ -47,6 +47,14 @@ public final class PushMessage extends BaseMessage {
         return content;
     }
 
+    public boolean autoAck() {
+        return packet.hasFlag(Packet.FLAG_AUTO_ACK);
+    }
+
+    public boolean bizAck() {
+        return packet.hasFlag(Packet.FLAG_BIZ_ACK);
+    }
+
     @Override
     public String toString() {
         return "PushMessage{" +

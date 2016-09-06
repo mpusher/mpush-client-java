@@ -29,10 +29,7 @@ import com.mpush.api.http.HttpResponse;
 import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
 import com.mpush.handler.HttpProxyHandler;
-import com.mpush.message.BindUserMessage;
-import com.mpush.message.FastConnectMessage;
-import com.mpush.message.HandshakeMessage;
-import com.mpush.message.HttpRequestMessage;
+import com.mpush.message.*;
 import com.mpush.security.AesCipher;
 import com.mpush.security.CipherBox;
 import com.mpush.session.PersistentSession;
@@ -49,10 +46,10 @@ import static com.mpush.api.Constants.*;
  *
  * @author ohun@live.cn (夜色)
  */
-public final class MPushClient implements Client {
-    public enum State {Started, Shutdown, Destroyed}
+/*package*/final class MPushClient implements Client {
+    private enum State {Started, Shutdown, Destroyed}
 
-    private final AtomicReference<State> clientState = new AtomicReference(State.Shutdown);
+    private final AtomicReference<State> clientState = new AtomicReference<>(State.Shutdown);
 
     private final MessageDispatcher receiver;
     private final TcpConnection connection;
@@ -213,6 +210,15 @@ public final class MPushClient implements Client {
                 .setUserId(userId)
                 .send();
         logger.w("<<< do unbind user, userId=%s", userId);
+    }
+
+    @Override
+    public void ack(int messageId) {
+        if (messageId > 0) {
+            AckMessage ackMessage = new AckMessage(messageId, connection);
+            ackMessage.sendRaw();
+            logger.d("<<< send ack for push messageId=%d", messageId);
+        }
     }
 
     @Override

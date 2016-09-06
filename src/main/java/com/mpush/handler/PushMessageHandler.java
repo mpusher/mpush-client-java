@@ -23,6 +23,7 @@ package com.mpush.handler;
 import com.mpush.api.ClientListener;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
+import com.mpush.message.AckMessage;
 import com.mpush.message.PushMessage;
 import com.mpush.client.ClientConfig;
 import com.mpush.api.Logger;
@@ -43,7 +44,13 @@ public final class PushMessageHandler extends BaseMessageHandler<PushMessage> {
 
     @Override
     public void handle(PushMessage message) {
-        logger.d(">>> receive push messaged=%s", message.content.length);
-        listener.onReceivePush(message.getConnection().getClient(), message.content);
+        logger.d(">>> receive push message=%s", message.content.length);
+        listener.onReceivePush(message.getConnection().getClient(),
+                message.content,
+                message.bizAck() ? message.getSessionId() : 0);
+        if (message.autoAck()) {
+            AckMessage.from(message).sendRaw();
+            logger.d("<<< send ack for push messageId=%d", message.getSessionId());
+        }
     }
 }

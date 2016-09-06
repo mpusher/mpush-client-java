@@ -33,7 +33,7 @@ public interface ClientListener {
 
     void onHandshakeOk(Client client, int heartbeat);
 
-    void onReceivePush(Client client, byte[] content);
+    void onReceivePush(Client client, byte[] content, int messageId);
 
     void onKickUser(String deviceId, String userId);
 }

@@ -42,5 +42,7 @@ public interface MPushProtocol {
 
     void unbindUser();
 
+    void ack(int messageId);
+
     Future<HttpResponse> sendHttp(HttpRequest request);
 }
