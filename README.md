@@ -7,14 +7,14 @@
 ## 当前版本
 
 ```groovy
-compile 'com.github.mpusher:mpush-client:0.0.4'
+compile 'com.github.mpusher:mpush-client-java:0.0.2'
 ```
 
 ```xml
 <dependency>
     <groupId>com.github.mpusher</groupId>
-    <artifactId>mpush-client</artifactId>
-    <version>0.0.4</version>
+    <artifactId>mpush-client-java</artifactId>
+    <version>0.0.2</version>
 </dependency>
 ```
 
@@ -47,4 +47,6 @@ public class MPushClientTest {
         LockSupport.park();
     }
 ```
-#### 说明allocServer的实现参照[AllocServer.java](https://github.com/mpusher/alloc/blob/master/src/main/java/com/shinemo/mpush/alloc/AllocServer.java)
+#### 说明:
+
+allocServer的实现参照[AllocServer.java](https://github.com/mpusher/alloc/blob/master/src/main/java/com/shinemo/mpush/alloc/AllocServer.java)
