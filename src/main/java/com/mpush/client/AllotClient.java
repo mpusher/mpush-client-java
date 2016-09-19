@@ -101,7 +101,7 @@ import java.util.List;
         if (content.length > 0) {
             String result = new String(content, Constants.UTF_8);
             logger.w("get server address success result=%s", result);
-            serverAddress.addAll(Arrays.asList(result.split(",")));
+            serverAddress = Arrays.asList(result.split(","));
         } else {
             logger.w("get server address failure return content empty.");
         }
