@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by yxx on 2016/6/8.
@@ -40,7 +41,7 @@ import java.util.List;
  * @author ohun@live.cn (夜色)
  */
 /*package*/ final class AllotClient {
-    private List<String> serverAddress = new ArrayList<>();
+    private List<String> serverAddress = new CopyOnWriteArrayList<>();
 
     public List<String> getServerAddress() {
         if (serverAddress.isEmpty()) {
