@@ -41,7 +41,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author ohun@live.cn (夜色)
  */
 /*package*/ final class AllotClient {
-    private List<String> serverAddress = new CopyOnWriteArrayList<>();
+    private List<String> serverAddress = new ArrayList<>();
 
     public List<String> getServerAddress() {
         if (serverAddress.isEmpty()) {
@@ -102,9 +102,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
         if (content.length > 0) {
             String result = new String(content, Constants.UTF_8);
             logger.w("get server address success result=%s", result);
+            List<String> serverAddress = new ArrayList<>();
             for (String s : result.split(",")) {
                 serverAddress.add(s);
             }
+            this.serverAddress = serverAddress;
         } else {
             logger.w("get server address failure return content empty.");
         }
