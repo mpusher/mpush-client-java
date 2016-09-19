@@ -180,9 +180,8 @@ public final class TcpConnection implements Connection {
     private boolean doConnect() {
         List<String> address = allotClient.getServerAddress();
         if (address != null && address.size() > 0) {
-            Iterator<String> it = address.iterator();
-            while (it.hasNext()) {
-                String[] host_port = it.next().split(":");
+            for (int i = 0; i < address.size(); i++) {
+                String[] host_port = address.get(i).split(":");
                 if (host_port.length == 2) {
 
                     String host = host_port[0];
@@ -192,8 +191,7 @@ public final class TcpConnection implements Connection {
                         return true;
                     }
                 }
-
-                it.remove();
+                address.remove(i--);
             }
         }
         return false;
