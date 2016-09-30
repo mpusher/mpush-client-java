@@ -32,6 +32,11 @@ import java.util.concurrent.Future;
  */
 public interface MPushProtocol {
 
+    /**
+     * 健康检查, 检测读写超时, 发送心跳
+     *
+     * @return true/false Client
+     */
     boolean healthCheck();
 
     void fastConnect();

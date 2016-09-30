@@ -22,17 +22,9 @@ package com.mpush.client;
 
 import com.mpush.api.Client;
 import com.mpush.api.ClientListener;
-import com.mpush.api.Constants;
-import com.mpush.api.http.HttpCallback;
-import com.mpush.api.http.HttpMethod;
-import com.mpush.api.http.HttpRequest;
-import com.mpush.api.http.HttpResponse;
 import com.mpush.util.DefaultLogger;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.LockSupport;
+import java.util.concurrent.*;
 
 /**
  * Created by ohun on 2016/1/25.
@@ -44,32 +36,52 @@ public class MPushClientTest {
     private static final String allocServer = "http://127.0.0.1:9999/";
 
     public static void main(String[] args) throws Exception {
-        Client client = ClientConfig
-                .build()
-                .setPublicKey(publicKey)
-                //.setAllotServer(allocServer)
-                .setServerHost("127.0.0.1")
-                .setServerPort(3000)
-                .setDeviceId("1111111111")
-                .setOsName("Android")
-                .setOsVersion("6.0")
-                .setClientVersion("2.0")
-                .setUserId("doctor43test")
-                .setMaxHeartbeat(10000)
-                .setMinHeartbeat(10000)
-                .setSessionStorageDir(MPushClientTest.class.getResource("/").getFile())
-                .setLogger(new DefaultLogger())
-                .setLogEnabled(true)
-                .setEnableHttpProxy(true)
-                .setClientListener(new L())
-                .create();
-        client.start();
+        int count = 1;
+        String serverHost = "127.0.0.1";
+        int sleep = 1000;
+
+        if (args != null && args.length > 0) {
+            count = Integer.parseInt(args[0]);
+            if (args.length > 1) {
+                serverHost = args[1];
+            }
+            if (args.length > 2) {
+                sleep = Integer.parseInt(args[1]);
+            }
+        }
+
+        ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+        ClientListener listener = new L(scheduledExecutor);
+        for (int i = 0; i < count; i++) {
+            Client client = ClientConfig
+                    .build()
+                    .setPublicKey(publicKey)
+                    //.setAllotServer(allocServer)
+                    .setServerHost(serverHost)
+                    .setServerPort(3000)
+                    .setDeviceId("deviceId-test" + i)
+                    .setOsName("Android")
+                    .setOsVersion("6.0")
+                    .setClientVersion("2.0")
+                    .setUserId("user-" + i)
+                    .setSessionStorageDir(MPushClientTest.class.getResource("/").getFile() + i)
+                    .setLogger(new DefaultLogger())
+                    .setLogEnabled(true)
+                    .setEnableHttpProxy(true)
+                    .setClientListener(listener)
+                    .create();
+            client.start();
+            Thread.sleep(sleep);
+        }
     }
 
-
     public static class L implements ClientListener {
-        Thread thread;
+        private final ScheduledExecutorService scheduledExecutor;
         boolean flag = true;
+
+        public L(ScheduledExecutorService scheduledExecutor) {
+            this.scheduledExecutor = scheduledExecutor;
+        }
 
         @Override
         public void onConnected(Client client) {
@@ -79,32 +91,16 @@ public class MPushClientTest {
         @Override
         public void onDisConnected(Client client) {
             flag = false;
-            thread.interrupt();
         }
 
         @Override
         public void onHandshakeOk(final Client client, final int heartbeat) {
-            thread = new Thread(new Runnable() {
+            scheduledExecutor.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
-                    while (flag && client.isRunning()) {
-                        try {
-                            Thread.sleep(heartbeat);
-                        } catch (InterruptedException e) {
-                            break;
-                        }
-                        client.healthCheck();
-                       /* client.stop();
-                        try {
-                            Thread.sleep(3000);
-                        } catch (InterruptedException e) {
-                            break;
-                        }
-                        client.start();*/
-                    }
+                    client.healthCheck();
                 }
-            });
-            thread.start();
+            }, heartbeat, heartbeat, TimeUnit.MILLISECONDS);
         }
 
         @Override
@@ -116,6 +112,5 @@ public class MPushClientTest {
         public void onKickUser(String deviceId, String userId) {
 
         }
-
     }
 }

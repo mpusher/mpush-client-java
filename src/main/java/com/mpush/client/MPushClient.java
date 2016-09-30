@@ -186,7 +186,10 @@ import static com.mpush.api.Constants.*;
             return;
         }
         SessionContext context = connection.getSessionContext();
-        if (userId.equals(context.bindUser)) return;
+        if (context.bindUser != null) {
+            if (userId.equals(context.bindUser)) return;//已经绑定
+            else unbindUser();//切换用户，要先解绑老用户
+        }
         context.setBindUser(userId);
         config.setUserId(userId);
         BindUserMessage
