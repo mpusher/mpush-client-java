@@ -80,8 +80,8 @@ public final class AsyncPacketReader implements PacketReader, Runnable {
                 in.compact();
             }
         } finally {
-            //logger.w("read an error, do reconnect!!!");
-            //connection.reconnect();
+            logger.w("read an error, do reconnect!!!");
+            connection.reconnect();
         }
     }
 
@@ -99,7 +99,7 @@ public final class AsyncPacketReader implements PacketReader, Runnable {
             readCount = channel.read(in);
             connection.setLastReadTime();
         } catch (IOException e) {
-            //logger.e(e, "read packet ex, do reconnect");
+            logger.e(e, "read packet ex, do reconnect");
             readCount = -1;
         }
         return readCount > 0;
