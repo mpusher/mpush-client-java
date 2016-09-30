@@ -45,14 +45,14 @@ public final class DefaultLogger implements Logger {
     @Override
     public void d(String s, Object... args) {
         if (enable) {
-            System.out.printf(format.format(new Date()) + " [D] " + TAG + s + '\n', args);
+            //System.out.printf(format.format(new Date()) + " [D] " + TAG + s + '\n', args);
         }
     }
 
     @Override
     public void i(String s, Object... args) {
         if (enable) {
-            System.out.printf(format.format(new Date()) + " [I] " + TAG + s + '\n', args);
+            //System.out.printf(format.format(new Date()) + " [I] " + TAG + s + '\n', args);
         }
     }
 
