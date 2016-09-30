@@ -71,7 +71,7 @@ public final class ClientConfig {
 
     public SessionStorage getSessionStorage() {
         if (sessionStorage == null) {
-            sessionStorage = new FileSessionStorage(sessionStorageDir);
+            //sessionStorage = new FileSessionStorage(sessionStorageDir);
         }
         return sessionStorage;
     }
