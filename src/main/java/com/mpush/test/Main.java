@@ -48,7 +48,7 @@ public final class Main {
                 serverHost = args[1];
             }
             if (args.length > 2) {
-                sleep = Integer.parseInt(args[1]);
+                sleep = Integer.parseInt(args[2]);
             }
         }
 
