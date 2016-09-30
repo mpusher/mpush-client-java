@@ -205,6 +205,7 @@ public final class TcpConnection implements Connection {
             channel = SocketChannel.open();
             channel.socket().setTcpNoDelay(true);
             channel.socket().setKeepAlive(true);
+            channel.socket().setReuseAddress(true);
             channel.connect(new InetSocketAddress(host, port));
             logger.w("connect server ok [%s:%s]", host, port);
             onConnected(channel);
