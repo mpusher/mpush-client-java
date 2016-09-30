@@ -52,7 +52,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public final class TcpConnection implements Connection {
     public enum State {connecting, connected, disconnecting, disconnected}
 
-    private final AtomicReference<State> state = new AtomicReference(disconnected);
+    private final AtomicReference<State> state = new AtomicReference<>(disconnected);
     private final EventLock connLock = new EventLock();
     private final ClientConfig config;
     private final Logger logger;
@@ -240,6 +240,11 @@ public final class TcpConnection implements Connection {
     @Override
     public Client getClient() {
         return client;
+    }
+
+    @Override
+    public PacketReader getReader() {
+        return reader;
     }
 
     @Override

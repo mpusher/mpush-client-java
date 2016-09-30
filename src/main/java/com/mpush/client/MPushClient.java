@@ -22,6 +22,7 @@ package com.mpush.client;
 
 import com.mpush.api.Client;
 import com.mpush.api.Logger;
+import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.SessionContext;
 import com.mpush.api.connection.SessionStorage;
 import com.mpush.api.http.HttpRequest;
@@ -102,6 +103,11 @@ import static com.mpush.api.Constants.*;
     @Override
     public boolean isRunning() {
         return clientState.get() == State.Started && connection.isConnected();
+    }
+
+    @Override
+    public Connection getConnection() {
+        return connection;
     }
 
     @Override

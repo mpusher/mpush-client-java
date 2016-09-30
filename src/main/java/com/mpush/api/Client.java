@@ -20,6 +20,7 @@
 package com.mpush.api;
 
 
+import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.MPushProtocol;
 
 /**
@@ -37,4 +38,5 @@ public interface Client extends MPushProtocol {
 
     boolean isRunning();
 
+    Connection getConnection();
 }

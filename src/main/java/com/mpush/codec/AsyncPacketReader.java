@@ -51,7 +51,7 @@ public final class AsyncPacketReader implements PacketReader, Runnable {
     public AsyncPacketReader(Connection connection, PacketReceiver receiver) {
         this.connection = connection;
         this.receiver = receiver;
-        this.buffer = ByteBuf.allocateDirect(Short.MAX_VALUE);//默认读buffer大小为32k
+        this.buffer = ByteBuf.allocateDirect(1024);//默认读buffer大小为32k
         this.logger = ClientConfig.I.getLogger();
     }
 
@@ -81,7 +81,7 @@ public final class AsyncPacketReader implements PacketReader, Runnable {
             }
         } finally {
             logger.w("read an error, do reconnect!!!");
-            connection.reconnect();
+            //connection.reconnect();
         }
     }
 
