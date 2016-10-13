@@ -21,6 +21,7 @@ package com.mpush.message;
 
 
 import com.mpush.api.connection.Connection;
+import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
 import com.mpush.api.Constants;
 
@@ -32,6 +33,11 @@ import com.mpush.api.Constants;
 public final class PushMessage extends BaseMessage {
 
     public byte[] content;
+
+    public PushMessage(byte[] content, Connection connection) {
+        super(new Packet(Command.PUSH, genSessionId()), connection);
+        this.content = content;
+    }
 
     public PushMessage(Packet packet, Connection connection) {
         super(packet, connection);
@@ -53,6 +59,11 @@ public final class PushMessage extends BaseMessage {
 
     public boolean bizAck() {
         return packet.hasFlag(Packet.FLAG_BIZ_ACK);
+    }
+
+    public PushMessage addFlag(byte flag) {
+        packet.addFlag(flag);
+        return this;
     }
 
     @Override

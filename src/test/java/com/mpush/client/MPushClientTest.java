@@ -22,6 +22,9 @@ package com.mpush.client;
 
 import com.mpush.api.Client;
 import com.mpush.api.ClientListener;
+import com.mpush.api.push.AckModel;
+import com.mpush.api.push.PushCallback;
+import com.mpush.api.push.PushContext;
 import com.mpush.util.DefaultLogger;
 
 import java.util.concurrent.*;
@@ -52,8 +55,9 @@ public class MPushClientTest {
 
         ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
         ClientListener listener = new L(scheduledExecutor);
+        Client client = null;
         for (int i = 0; i < count; i++) {
-            Client client = ClientConfig
+            client = ClientConfig
                     .build()
                     .setPublicKey(publicKey)
                     //.setAllotServer(allocServer)
@@ -101,6 +105,9 @@ public class MPushClientTest {
                     client.healthCheck();
                 }
             }, heartbeat, heartbeat, TimeUnit.MILLISECONDS);
+
+            client.push(PushContext.build("test"));
+
         }
 
         @Override

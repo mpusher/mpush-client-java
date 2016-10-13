@@ -17,41 +17,12 @@
  *     ohun@live.cn (夜色)
  */
 
-package com.mpush.api.protocol;
-
-
-import com.mpush.api.http.HttpRequest;
-import com.mpush.api.http.HttpResponse;
-import com.mpush.api.push.AckModel;
-import com.mpush.api.push.PushContext;
-
-import java.util.concurrent.Future;
+package com.mpush.api.push;
 
 /**
- * Created by ohun on 2016/1/17.
+ * Created by ohun on 16/10/13.
  *
  * @author ohun@live.cn (夜色)
  */
-public interface MPushProtocol {
-
-    /**
-     * 健康检查, 检测读写超时, 发送心跳
-     *
-     * @return true/false Client
-     */
-    boolean healthCheck();
-
-    void fastConnect();
-
-    void handshake();
-
-    void bindUser(String userId);
-
-    void unbindUser();
-
-    void ack(int messageId);
-
-    Future<Boolean> push(PushContext context);
-
-    Future<HttpResponse> sendHttp(HttpRequest request);
+public final class PushResult {
 }

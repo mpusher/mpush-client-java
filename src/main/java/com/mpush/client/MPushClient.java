@@ -28,6 +28,8 @@ import com.mpush.api.http.HttpRequest;
 import com.mpush.api.http.HttpResponse;
 import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
+import com.mpush.api.push.PushContext;
+import com.mpush.handler.AckHandler;
 import com.mpush.handler.HttpProxyHandler;
 import com.mpush.message.*;
 import com.mpush.security.AesCipher;
@@ -57,7 +59,8 @@ import static com.mpush.api.Constants.*;
     private final Logger logger;
     private int hbTimeoutTimes;
 
-    private HttpRequestQueue requestQueue;
+    private HttpRequestQueue httpRequestQueue;
+    private AckMessageQueue ackMessageQueue;
 
     /*package*/ MPushClient(ClientConfig config) {
         this.config = config;
@@ -65,8 +68,13 @@ import static com.mpush.api.Constants.*;
         this.receiver = new MessageDispatcher();
         this.connection = new TcpConnection(this, receiver);
         if (config.isEnableHttpProxy()) {
-            this.requestQueue = new HttpRequestQueue();
-            this.receiver.register(Command.HTTP_PROXY, new HttpProxyHandler(requestQueue));
+            this.httpRequestQueue = new HttpRequestQueue();
+            this.receiver.register(Command.HTTP_PROXY, new HttpProxyHandler(httpRequestQueue));
+        }
+
+        if (config.isEnableClientPush()) {
+            this.ackMessageQueue = new AckMessageQueue();
+            this.receiver.register(Command.ACK, new AckHandler(ackMessageQueue));
         }
     }
 
@@ -225,6 +233,18 @@ import static com.mpush.api.Constants.*;
     }
 
     @Override
+    public Future<Boolean> push(PushContext context) {
+        if (connection.getSessionContext().handshakeOk()) {
+            PushMessage message = new PushMessage(context.content, connection);
+            message.addFlag(context.ackModel.flag);
+            message.send();
+            logger.d("<<< send push message=%s", message);
+            return ackMessageQueue.add(message.getSessionId(), context);
+        }
+        return null;
+    }
+
+    @Override
     public Future<HttpResponse> sendHttp(HttpRequest request) {
         if (connection.getSessionContext().handshakeOk()) {
             HttpRequestMessage message = new HttpRequestMessage(connection);
@@ -234,7 +254,7 @@ import static com.mpush.api.Constants.*;
             message.body = request.getBody();
             message.send();
             logger.d("<<< send http proxy, request=%s", request);
-            return requestQueue.add(message.getSessionId(), request);
+            return httpRequestQueue.add(message.getSessionId(), request);
         }
         return null;
     }

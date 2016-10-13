@@ -54,6 +54,7 @@ public final class ClientConfig {
     private Logger logger;
     private boolean logEnabled;
     private boolean enableHttpProxy = true;
+    private boolean enableClientPush = true;
 
     public static ClientConfig build() {
         return I = new ClientConfig();
@@ -244,6 +245,15 @@ public final class ClientConfig {
 
     public ClientConfig setServerPort(int serverPort) {
         this.serverPort = serverPort;
+        return this;
+    }
+
+    public boolean isEnableClientPush() {
+        return enableClientPush;
+    }
+
+    public ClientConfig setEnableClientPush(boolean enableClientPush) {
+        this.enableClientPush = enableClientPush;
         return this;
     }
 }

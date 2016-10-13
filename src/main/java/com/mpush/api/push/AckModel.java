@@ -17,41 +17,22 @@
  *     ohun@live.cn (夜色)
  */
 
-package com.mpush.api.protocol;
+package com.mpush.api.push;
 
-
-import com.mpush.api.http.HttpRequest;
-import com.mpush.api.http.HttpResponse;
-import com.mpush.api.push.AckModel;
-import com.mpush.api.push.PushContext;
-
-import java.util.concurrent.Future;
+import com.mpush.api.protocol.Packet;
 
 /**
- * Created by ohun on 2016/1/17.
+ * Created by ohun on 16/9/6.
  *
  * @author ohun@live.cn (夜色)
  */
-public interface MPushProtocol {
+public enum AckModel {
+    NO_ACK((byte) 0),//不需要ACK
+    AUTO_ACK(Packet.FLAG_AUTO_ACK),//客户端收到消息后自动确认消息
+    BIZ_ACK(Packet.FLAG_BIZ_ACK);//由客户端业务自己确认消息是否到达
+    public final byte flag;
 
-    /**
-     * 健康检查, 检测读写超时, 发送心跳
-     *
-     * @return true/false Client
-     */
-    boolean healthCheck();
-
-    void fastConnect();
-
-    void handshake();
-
-    void bindUser(String userId);
-
-    void unbindUser();
-
-    void ack(int messageId);
-
-    Future<Boolean> push(PushContext context);
-
-    Future<HttpResponse> sendHttp(HttpRequest request);
+    AckModel(byte flag) {
+        this.flag = flag;
+    }
 }
