@@ -101,7 +101,15 @@ public final class AsyncPacketReader implements PacketReader, Runnable {
         } catch (IOException e) {
             logger.e(e, "read packet ex, do reconnect");
             readCount = -1;
+            sleep4Reconnect();
         }
         return readCount > 0;
+    }
+
+    private void sleep4Reconnect() {
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+        }
     }
 }
