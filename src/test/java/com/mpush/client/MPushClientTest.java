@@ -22,14 +22,12 @@ package com.mpush.client;
 
 import com.mpush.api.Client;
 import com.mpush.api.ClientListener;
-import com.mpush.api.push.AckModel;
-import com.mpush.api.push.PushCallback;
 import com.mpush.api.push.PushContext;
 import com.mpush.util.DefaultLogger;
 
-import java.util.concurrent.*;
-
-import static com.apple.eio.FileManager.getResource;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by ohun on 2016/1/25.
