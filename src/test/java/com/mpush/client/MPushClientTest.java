@@ -29,6 +29,8 @@ import com.mpush.util.DefaultLogger;
 
 import java.util.concurrent.*;
 
+import static com.apple.eio.FileManager.getResource;
+
 /**
  * Created by ohun on 2016/1/25.
  *
@@ -56,6 +58,7 @@ public class MPushClientTest {
         ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
         ClientListener listener = new L(scheduledExecutor);
         Client client = null;
+        String cacheDir = MPushClientTest.class.getResource("/").getFile();
         for (int i = 0; i < count; i++) {
             client = ClientConfig
                     .build()
@@ -68,7 +71,7 @@ public class MPushClientTest {
                     .setOsVersion("6.0")
                     .setClientVersion("2.0")
                     .setUserId("user-" + i)
-                    .setSessionStorageDir(MPushClientTest.class.getResource("/").getFile() + i)
+                    .setSessionStorageDir(cacheDir + i)
                     .setLogger(new DefaultLogger())
                     .setLogEnabled(true)
                     .setEnableHttpProxy(true)
