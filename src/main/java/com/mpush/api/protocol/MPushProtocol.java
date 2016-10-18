@@ -22,7 +22,6 @@ package com.mpush.api.protocol;
 
 import com.mpush.api.http.HttpRequest;
 import com.mpush.api.http.HttpResponse;
-import com.mpush.api.push.AckModel;
 import com.mpush.api.push.PushContext;
 
 import java.util.concurrent.Future;
@@ -45,7 +44,7 @@ public interface MPushProtocol {
 
     void handshake();
 
-    void bindUser(String userId);
+    void bindUser(String userId, String tags);
 
     void unbindUser();
 

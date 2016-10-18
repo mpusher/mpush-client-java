@@ -61,30 +61,37 @@ import java.util.concurrent.Executor;
 
     @Override
     public void onHandshakeOk(final Client client, final int heartbeat) {
-        if (listener != null) {
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    listener.onHandshakeOk(client, heartbeat);
-                }
-            });
-        } else {
-            //do heathCheck
+        if (listener != null) {//dispatcher已经使用了Executor，此处直接同步调用
+            listener.onHandshakeOk(client, heartbeat);
         }
-        client.bindUser(ClientConfig.I.getUserId());
+        client.bindUser(ClientConfig.I.getUserId(), ClientConfig.I.getTags());
     }
 
     @Override
     public void onReceivePush(final Client client, final byte[] content, int messageId) {
-        if (listener != null) {
+        if (listener != null) {//dispatcher已经使用了Executor，此处直接同步调用
             listener.onReceivePush(client, content, messageId);
         }
     }
 
     @Override
     public void onKickUser(String deviceId, String userId) {
-        if (listener != null) {
+        if (listener != null) {//dispatcher已经使用了Executor，此处直接同步调用
             listener.onKickUser(deviceId, userId);
+        }
+    }
+
+    @Override
+    public void onBind(boolean success, String userId) {
+        if (listener != null) {//dispatcher已经使用了Executor，此处直接同步调用
+            listener.onBind(success, userId);
+        }
+    }
+
+    @Override
+    public void onUnbind(boolean success, String userId) {
+        if (listener != null) {//dispatcher已经使用了Executor，此处直接同步调用
+            listener.onUnbind(success, userId);
         }
     }
 }

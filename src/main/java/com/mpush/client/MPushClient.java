@@ -41,7 +41,7 @@ import com.mpush.util.thread.ExecutorManager;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.mpush.api.Constants.*;
+import static com.mpush.api.Constants.MAX_HB_TIMEOUT_COUNT;
 
 /**
  * Created by ohun on 2016/1/17.
@@ -188,21 +188,25 @@ import static com.mpush.api.Constants.*;
     }
 
     @Override
-    public void bindUser(String userId) {
+    public void bindUser(String userId, String tags) {
         if (Strings.isBlank(userId)) {
             logger.w("bind user is null");
             return;
         }
         SessionContext context = connection.getSessionContext();
         if (context.bindUser != null) {
-            if (userId.equals(context.bindUser)) return;//已经绑定
-            else unbindUser();//切换用户，要先解绑老用户
+            if (userId.equals(context.bindUser)) {//已经绑定
+                if (tags != null && tags.equals(context.tags)) return;
+            } else {
+                unbindUser();//切换用户，要先解绑老用户
+            }
         }
-        context.setBindUser(userId);
-        config.setUserId(userId);
+        context.setBindUser(userId).setTags(tags);
+        config.setUserId(userId).setTags(tags);
         BindUserMessage
                 .buildBind(connection)
                 .setUserId(userId)
+                .setTags(tags)
                 .send();
         logger.w("<<< do bind user, userId=%s", userId);
     }
@@ -214,8 +218,8 @@ import static com.mpush.api.Constants.*;
             logger.w("unbind user is null");
             return;
         }
-        config.setUserId(null);
-        connection.getSessionContext().setBindUser(null);
+        config.setUserId(null).setTags(null);
+        connection.getSessionContext().setBindUser(null).setTags(null);
         BindUserMessage
                 .buildUnbind(connection)
                 .setUserId(userId)

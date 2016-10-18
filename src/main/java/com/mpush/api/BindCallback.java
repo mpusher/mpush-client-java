@@ -19,25 +19,11 @@
 
 package com.mpush.api;
 
-
 /**
- * Created by ohun on 2016/1/23.
+ * Created by ohun on 16/10/17.
  *
  * @author ohun@live.cn (夜色)
  */
-public interface ClientListener {
+public interface BindCallback {
 
-    void onConnected(Client client);
-
-    void onDisConnected(Client client);
-
-    void onHandshakeOk(Client client, int heartbeat);
-
-    void onReceivePush(Client client, byte[] content, int messageId);
-
-    void onKickUser(String deviceId, String userId);
-
-    void onBind(boolean success, String userId);
-
-    void onUnbind(boolean success, String userId);
 }

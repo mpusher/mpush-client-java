@@ -20,8 +20,8 @@
 package com.mpush.handler;
 
 
-
 import com.mpush.api.connection.Connection;
+import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
 import com.mpush.message.OkMessage;
 import com.mpush.api.Logger;
@@ -42,6 +42,12 @@ public final class OkMessageHandler extends BaseMessageHandler<OkMessage> {
 
     @Override
     public void handle(OkMessage message) {
+        if (message.cmd == Command.BIND.cmd) {
+            ClientConfig.I.getClientListener().onBind(true, message.getConnection().getSessionContext().bindUser);
+        } else if (message.cmd == Command.UNBIND.cmd) {
+            ClientConfig.I.getClientListener().onUnbind(true, null);
+        }
+
         logger.w(">>> receive ok message=%s", message);
     }
 }

@@ -69,6 +69,7 @@ public class MPushClientTest {
                     .setOsVersion("6.0")
                     .setClientVersion("2.0")
                     .setUserId("user-" + i)
+                    .setTags("tag-" + i)
                     .setSessionStorageDir(cacheDir + i)
                     .setLogger(new DefaultLogger())
                     .setLogEnabled(true)
@@ -118,6 +119,16 @@ public class MPushClientTest {
 
         @Override
         public void onKickUser(String deviceId, String userId) {
+
+        }
+
+        @Override
+        public void onBind(boolean success, String userId) {
+
+        }
+
+        @Override
+        public void onUnbind(boolean success, String userId) {
 
         }
     }

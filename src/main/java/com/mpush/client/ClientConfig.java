@@ -45,6 +45,7 @@ public final class ClientConfig {
     private String osVersion;
     private String clientVersion;
     private String userId;
+    private String tags;
     private int maxHeartbeat = Constants.DEF_HEARTBEAT;
     private int minHeartbeat = Constants.DEF_HEARTBEAT;
     private int aesKeyLength = 16;
@@ -254,6 +255,15 @@ public final class ClientConfig {
 
     public ClientConfig setEnableClientPush(boolean enableClientPush) {
         this.enableClientPush = enableClientPush;
+        return this;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public ClientConfig setTags(String tags) {
+        this.tags = tags;
         return this;
     }
 }

@@ -29,6 +29,7 @@ public final class SessionContext {
     public int heartbeat;
     public Cipher cipher;
     public String bindUser;
+    public String tags;
 
     public void changeCipher(Cipher cipher) {
         this.cipher = cipher;
@@ -38,8 +39,14 @@ public final class SessionContext {
         this.heartbeat = heartbeat;
     }
 
-    public void setBindUser(String bindUser) {
+    public SessionContext setBindUser(String bindUser) {
         this.bindUser = bindUser;
+        return this;
+    }
+
+    public SessionContext setTags(String tags) {
+        this.tags = tags;
+        return this;
     }
 
     public boolean handshakeOk() {
