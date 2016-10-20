@@ -20,7 +20,6 @@
 package com.mpush.handler;
 
 
-
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
 import com.mpush.api.Logger;
@@ -33,7 +32,11 @@ import com.mpush.client.ClientConfig;
  * @author ohun@live.cn (夜色)
  */
 public final class HeartbeatHandler implements MessageHandler {
-    private final Logger logger = ClientConfig.I.getLogger();
+    private final Logger logger;
+
+    public HeartbeatHandler(ClientConfig clientConfig) {
+        this.logger = clientConfig.getLogger();
+    }
 
     @Override
     public void handle(Packet packet, Connection connection) {

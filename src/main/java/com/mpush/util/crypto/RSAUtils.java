@@ -212,7 +212,7 @@ public final class RSAUtils {
             //如果明文长度大于模长-11则要分组加密
             return doFinal(cipher, data, key_len - 11);
         } catch (Exception e) {
-            ClientConfig.I.getLogger().e(e, "encryptByPublicKey ex");
+            //ClientConfig.I.getLogger().e(e, "encryptByPublicKey ex");
         }
         return Constants.EMPTY_BYTES;
     }
@@ -233,7 +233,7 @@ public final class RSAUtils {
             //如果密文长度大于模长则要分组解密
             return doFinal(cipher, data, key_len);
         } catch (Exception e) {
-            ClientConfig.I.getLogger().e(e, "decryptByPrivateKey ex");
+            //ClientConfig.I.getLogger().e(e, "decryptByPrivateKey ex");
         }
         return Constants.EMPTY_BYTES;
     }

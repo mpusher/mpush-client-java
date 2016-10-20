@@ -41,16 +41,18 @@ import java.util.concurrent.Executor;
 public final class MessageDispatcher implements PacketReceiver {
     private final Executor executor = ExecutorManager.INSTANCE.getDispatchThread();
     private final Map<Byte, MessageHandler> handlers = new HashMap<>();
-    private final Logger logger = ClientConfig.I.getLogger();
+    private final Logger logger;
 
-    public MessageDispatcher() {
-        register(Command.HEARTBEAT, new HeartbeatHandler());
-        register(Command.FAST_CONNECT, new FastConnectOkHandler());
-        register(Command.HANDSHAKE, new HandshakeOkHandler());
-        register(Command.KICK, new KickUserHandler());
-        register(Command.OK, new OkMessageHandler());
-        register(Command.ERROR, new ErrorMessageHandler());
-        register(Command.PUSH, new PushMessageHandler());
+
+    public MessageDispatcher(ClientConfig clientConfig) {
+        this.logger = clientConfig.getLogger();
+        register(Command.HEARTBEAT, new HeartbeatHandler(clientConfig));
+        register(Command.FAST_CONNECT, new FastConnectOkHandler(clientConfig));
+        register(Command.HANDSHAKE, new HandshakeOkHandler(clientConfig));
+        register(Command.KICK, new KickUserHandler(clientConfig));
+        register(Command.OK, new OkMessageHandler(clientConfig));
+        register(Command.ERROR, new ErrorMessageHandler(clientConfig));
+        register(Command.PUSH, new PushMessageHandler(clientConfig));
     }
 
     public void register(Command command, MessageHandler handler) {

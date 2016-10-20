@@ -34,7 +34,11 @@ public class ConnectThread extends Thread {
     private volatile Callable<Boolean> runningTask;
     private volatile boolean runningFlag = true;
     private final EventLock connLock;
-    public ConnectThread(EventLock connLock) {
+    private final ClientConfig clientConfig;
+
+
+    public ConnectThread(ClientConfig clientConfig, EventLock connLock) {
+        this.clientConfig = clientConfig;
         this.connLock = connLock;
         this.setName(ExecutorManager.START_THREAD_NAME);
         this.start();
@@ -69,7 +73,7 @@ public class ConnectThread extends Thread {
             } catch (InterruptedException e) {
                 continue;
             } catch (Exception e) {
-                ClientConfig.I.getLogger().e(e, "run connect task error");
+                clientConfig.getLogger().e(e, "run connect task error");
                 break;
             }
         }

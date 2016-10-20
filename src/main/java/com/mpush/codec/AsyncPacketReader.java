@@ -52,7 +52,7 @@ public final class AsyncPacketReader implements PacketReader, Runnable {
         this.connection = connection;
         this.receiver = receiver;
         this.buffer = ByteBuf.allocateDirect(1024);//默认读buffer大小为32k
-        this.logger = ClientConfig.I.getLogger();
+        this.logger = connection.getConfig().getLogger();
     }
 
     @Override

@@ -33,7 +33,11 @@ import com.mpush.message.KickUserMessage;
  * @author ohun@live.cn (夜色)
  */
 public final class KickUserHandler extends BaseMessageHandler<KickUserMessage> {
-    private Logger logger = ClientConfig.I.getLogger();
+    private final ClientConfig clientConfig;
+
+    public KickUserHandler(ClientConfig clientConfig) {
+        this.clientConfig = clientConfig;
+    }
 
     @Override
     public KickUserMessage decode(Packet packet, Connection connection) {
@@ -42,8 +46,8 @@ public final class KickUserHandler extends BaseMessageHandler<KickUserMessage> {
 
     @Override
     public void handle(KickUserMessage message) {
-        logger.w(">>> receive kickUser message=%s", message);
-        ClientListener listener = ClientConfig.I.getClientListener();
+        clientConfig.getLogger().w(">>> receive kickUser message=%s", message);
+        ClientListener listener = clientConfig.getClientListener();
         listener.onKickUser(message.deviceId, message.userId);
     }
 }

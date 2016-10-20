@@ -33,7 +33,6 @@ import com.mpush.util.thread.EventLock;
 import java.net.InetSocketAddress;
 import java.nio.channels.Channel;
 import java.nio.channels.SocketChannel;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
@@ -57,7 +56,7 @@ public final class TcpConnection implements Connection {
     private final ClientConfig config;
     private final Logger logger;
     private final ClientListener listener;
-    private final MPushClient client;
+    private final Client client;
     private final PacketWriter writer;
     private final PacketReader reader;
     private final AllotClient allotClient;
@@ -70,12 +69,12 @@ public final class TcpConnection implements Connection {
     private volatile int reconnectCount = 0;
     private volatile boolean autoConnect = true;
 
-    public TcpConnection(MPushClient client, PacketReceiver receiver) {
+    public TcpConnection(Client client, PacketReceiver receiver) {
         this.client = client;
-        this.config = ClientConfig.I;
+        this.config = client.getConfig();
         this.logger = config.getLogger();
         this.listener = config.getClientListener();
-        this.allotClient = new AllotClient();
+        this.allotClient = new AllotClient(config);
         this.reader = new AsyncPacketReader(this, receiver);
         this.writer = new AsyncPacketWriter(this, connLock);
     }
@@ -124,7 +123,7 @@ public final class TcpConnection implements Connection {
     public void connect() {
         if (state.compareAndSet(disconnected, connecting)) {
             if ((connectThread == null) || !connectThread.isAlive()) {
-                connectThread = new ConnectThread(connLock);
+                connectThread = new ConnectThread(config,connLock);
             }
             connectThread.addConnectTask(new Callable<Boolean>() {
                 @Override
@@ -205,7 +204,7 @@ public final class TcpConnection implements Connection {
             channel = SocketChannel.open();
             channel.socket().setTcpNoDelay(true);
             channel.socket().setKeepAlive(true);
-            channel.socket().setReuseAddress(true);
+            //channel.socket().setReuseAddress(true);
             channel.connect(new InetSocketAddress(host, port));
             logger.w("connect server ok [%s:%s]", host, port);
             onConnected(channel);
@@ -246,6 +245,11 @@ public final class TcpConnection implements Connection {
     @Override
     public PacketReader getReader() {
         return reader;
+    }
+
+    @Override
+    public ClientConfig getConfig() {
+        return config;
     }
 
     @Override

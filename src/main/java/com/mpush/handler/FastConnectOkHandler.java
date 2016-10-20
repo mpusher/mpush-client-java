@@ -33,7 +33,13 @@ import com.mpush.message.FastConnectOkMessage;
  * @author ohun@live.cn (夜色)
  */
 public final class FastConnectOkHandler extends BaseMessageHandler<FastConnectOkMessage> {
-    private final Logger logger = ClientConfig.I.getLogger();
+    private final ClientConfig clientConfig;
+    private final Logger logger;
+
+    public FastConnectOkHandler(ClientConfig clientConfig) {
+        this.clientConfig = clientConfig;
+        this.logger = clientConfig.getLogger();
+    }
 
     @Override
     public FastConnectOkMessage decode(Packet packet, Connection connection) {
@@ -44,7 +50,7 @@ public final class FastConnectOkHandler extends BaseMessageHandler<FastConnectOk
     public void handle(FastConnectOkMessage message) {
         logger.w(">>> fast connect ok, message=%s", message);
         message.getConnection().getSessionContext().setHeartbeat(message.heartbeat);
-        ClientListener listener = ClientConfig.I.getClientListener();
+        ClientListener listener = clientConfig.getClientListener();
         listener.onHandshakeOk(message.getConnection().getClient(), message.heartbeat);
 
     }

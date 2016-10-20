@@ -24,6 +24,7 @@ package com.mpush.api.connection;
 import com.mpush.api.Client;
 import com.mpush.api.PacketReader;
 import com.mpush.api.protocol.Packet;
+import com.mpush.client.ClientConfig;
 
 import java.nio.channels.SocketChannel;
 
@@ -59,5 +60,7 @@ public interface Connection {
     Client getClient();
 
     PacketReader getReader();
+
+    ClientConfig getConfig();
 
 }

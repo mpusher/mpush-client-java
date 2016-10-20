@@ -63,11 +63,11 @@ import static com.mpush.api.Constants.*;
     /*package*/ MPushClient(ClientConfig config) {
         this.config = config;
         this.logger = config.getLogger();
-        this.receiver = new MessageDispatcher();
+        this.receiver = new MessageDispatcher(config);
         this.connection = new TcpConnection(this, receiver);
         if (config.isEnableHttpProxy()) {
-            this.requestQueue = new HttpRequestQueue();
-            this.receiver.register(Command.HTTP_PROXY, new HttpProxyHandler(requestQueue));
+            this.requestQueue = new HttpRequestQueue(config);
+            this.receiver.register(Command.HTTP_PROXY, new HttpProxyHandler(config, requestQueue));
         }
     }
 
@@ -95,7 +95,7 @@ import static com.mpush.api.Constants.*;
             this.stop();
             logger.w("client destroy !!!");
             ExecutorManager.INSTANCE.shutdown();
-            ClientConfig.I.destroy();
+            //ClientConfig.I.destroy();
             clientState.set(State.Destroyed);
         }
     }
@@ -108,6 +108,11 @@ import static com.mpush.api.Constants.*;
     @Override
     public Connection getConnection() {
         return connection;
+    }
+
+    @Override
+    public ClientConfig getConfig() {
+        return config;
     }
 
     @Override
@@ -170,7 +175,7 @@ import static com.mpush.api.Constants.*;
     @Override
     public void handshake() {
         SessionContext context = connection.getSessionContext();
-        context.changeCipher(CipherBox.INSTANCE.getRsaCipher());
+        context.changeCipher(CipherBox.INSTANCE.getRsaCipher(config));
         HandshakeMessage message = new HandshakeMessage(connection);
         message.clientKey = CipherBox.INSTANCE.randomAESKey();
         message.iv = CipherBox.INSTANCE.randomAESIV();

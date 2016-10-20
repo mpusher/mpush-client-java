@@ -42,6 +42,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 /*package*/ final class AllotClient {
     private List<String> serverAddress = new ArrayList<>();
+    private final ClientConfig config;
+
+    public AllotClient(ClientConfig config) {
+        this.config = config;
+    }
 
     public List<String> getServerAddress() {
         if (serverAddress.isEmpty()) {
@@ -51,7 +56,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
     }
 
     public List<String> queryServerAddressList() {
-        ClientConfig config = ClientConfig.I;
         Logger logger = config.getLogger();
 
         if (config.getAllotServer() == null) {

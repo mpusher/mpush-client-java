@@ -72,7 +72,7 @@ import java.util.concurrent.Executor;
             //do heathCheck
         }
         //client.getConnection().getReader().stopRead();//防止线程膨胀
-        //client.bindUser(ClientConfig.I.getUserId());
+        client.bindUser(client.getConfig().getUserId());
     }
 
     @Override

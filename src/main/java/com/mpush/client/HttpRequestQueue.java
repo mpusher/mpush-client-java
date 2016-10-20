@@ -55,7 +55,11 @@ public final class HttpRequestQueue {
             return response408;
         }
     };
-    private final Logger logger = ClientConfig.I.getLogger();
+    private final Logger logger;
+
+    public HttpRequestQueue(ClientConfig clientConfig) {
+        logger = clientConfig.getLogger();
+    }
 
     public Future<HttpResponse> add(int sessionId, HttpRequest request) {
         RequestTask task = new RequestTask(sessionId, request);

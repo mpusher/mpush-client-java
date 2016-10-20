@@ -50,8 +50,7 @@ public final class FileSessionStorage implements SessionStorage {
             out = new FileOutputStream(file);
             out.write(sessionContext.getBytes(Constants.UTF_8));
         } catch (Exception e) {
-            ClientConfig.I.getLogger().e(e, "save session context ex, session=%s, rootDir=%s"
-                    , sessionContext, rootDir);
+
         } finally {
             IOUtils.close(out);
         }
@@ -71,7 +70,6 @@ public final class FileSessionStorage implements SessionStorage {
             }
             in.close();
         } catch (Exception e) {
-            ClientConfig.I.getLogger().e(e, "get session context ex,rootDir=%s", rootDir);
         } finally {
             IOUtils.close(in);
         }

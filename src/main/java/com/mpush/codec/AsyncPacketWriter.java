@@ -51,7 +51,7 @@ public final class AsyncPacketWriter implements PacketWriter {
         this.connection = connection;
         this.connLock = connLock;
         this.buffer = ByteBuf.allocateDirect(1024);//默认写buffer为1k
-        this.logger = ClientConfig.I.getLogger();
+        this.logger = connection.getConfig().getLogger();
     }
 
     public void write(Packet packet) {

@@ -20,7 +20,6 @@
 package com.mpush.handler;
 
 
-
 import com.mpush.api.connection.Connection;
 import com.mpush.api.http.HttpResponse;
 import com.mpush.api.protocol.Packet;
@@ -35,11 +34,12 @@ import com.mpush.message.HttpResponseMessage;
  * @author ohun@live.cn (夜色)
  */
 public final class HttpProxyHandler extends BaseMessageHandler<HttpResponseMessage> {
-    private final Logger logger = ClientConfig.I.getLogger();
+    private final Logger logger;
     private final HttpRequestQueue queue;
 
-    public HttpProxyHandler(HttpRequestQueue queue) {
+    public HttpProxyHandler(ClientConfig clientConfig, HttpRequestQueue queue) {
         this.queue = queue;
+        this.logger = clientConfig.getLogger();
     }
 
     @Override

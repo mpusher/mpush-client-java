@@ -35,7 +35,6 @@ import com.mpush.api.Logger;
  */
 public final class ClientConfig {
     private final DefaultClientListener clientListener = new DefaultClientListener();
-    public static ClientConfig I = new ClientConfig();
     private String allotServer;
     private String serverHost;
     private int serverPort;
@@ -57,7 +56,7 @@ public final class ClientConfig {
     private boolean test = false;
 
     public static ClientConfig build() {
-        return I = new ClientConfig();
+        return new ClientConfig();
     }
 
     public Client create() {
@@ -66,7 +65,6 @@ public final class ClientConfig {
 
     /*package*/ void destroy() {
         clientListener.setListener(null);
-        I = new ClientConfig();
     }
 
     public SessionStorage getSessionStorage() {

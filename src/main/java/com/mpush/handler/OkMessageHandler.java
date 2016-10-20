@@ -33,7 +33,11 @@ import com.mpush.client.ClientConfig;
  * @author ohun@live.cn (夜色)
  */
 public final class OkMessageHandler extends BaseMessageHandler<OkMessage> {
-    private final Logger logger = ClientConfig.I.getLogger();
+    private final Logger logger;
+
+    public OkMessageHandler(ClientConfig clientConfig) {
+        logger = clientConfig.getLogger();
+    }
 
     @Override
     public OkMessage decode(Packet packet, Connection connection) {

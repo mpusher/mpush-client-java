@@ -33,15 +33,16 @@ import java.security.interfaces.RSAPublicKey;
  * @author ohun@live.cn (夜色)
  */
 public final class CipherBox {
-    public int aesKeyLength = ClientConfig.I.getAesKeyLength();
+    public int aesKeyLength = 16;
     public static final CipherBox INSTANCE = new CipherBox();
     private SecureRandom random = new SecureRandom();
     private RSAPublicKey publicKey;
 
 
-    public RSAPublicKey getPublicKey() {
+
+
+    public RSAPublicKey getPublicKey(String key) {
         if (publicKey == null) {
-            String key = ClientConfig.I.getPublicKey();
             try {
                 publicKey = (RSAPublicKey) RSAUtils.decodePublicKey(key);
             } catch (Exception e) {
@@ -79,7 +80,7 @@ public final class CipherBox {
         return aesKeyLength;
     }
 
-    public RsaCipher getRsaCipher() {
-        return new RsaCipher(getPublicKey());
+    public RsaCipher getRsaCipher(ClientConfig clientConfig) {
+        return new RsaCipher(getPublicKey(clientConfig.getPublicKey()));
     }
 }

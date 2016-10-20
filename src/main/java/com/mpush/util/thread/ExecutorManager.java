@@ -117,7 +117,7 @@ public final class ExecutorManager {
 
         @Override
         public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-            ClientConfig.I.getLogger().w("a task was rejected execute=%s", executor);
+            //ClientConfig.I.getLogger().w("a task was rejected execute=%s", executor);
         }
     }
 }

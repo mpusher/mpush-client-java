@@ -36,9 +36,9 @@ public class MPushClientTest {
     private static final String allocServer = "http://127.0.0.1:9999/";
 
     public static void main(String[] args) throws Exception {
-        int count = 1;
-        String serverHost = "127.0.0.1";
-        int sleep = 1000;
+        int count = 10;
+        String serverHost = "10.0.10.47";
+        int sleep = 10000;
 
         if (args != null && args.length > 0) {
             count = Integer.parseInt(args[0]);
@@ -52,6 +52,7 @@ public class MPushClientTest {
 
         ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
         ClientListener listener = new L(scheduledExecutor);
+        String dir = MPushClientTest.class.getResource("/").getFile();
         for (int i = 0; i < count; i++) {
             Client client = ClientConfig
                     .build()
@@ -64,7 +65,7 @@ public class MPushClientTest {
                     .setOsVersion("6.0")
                     .setClientVersion("2.0")
                     .setUserId("user-" + i)
-                    .setSessionStorageDir(MPushClientTest.class.getResource("/").getFile() + i)
+                    .setSessionStorageDir(dir + i)
                     .setLogger(new DefaultLogger())
                     .setLogEnabled(true)
                     .setEnableHttpProxy(true)

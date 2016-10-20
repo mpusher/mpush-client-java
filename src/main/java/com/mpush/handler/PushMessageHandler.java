@@ -34,8 +34,13 @@ import com.mpush.api.Logger;
  * @author ohun@live.cn (夜色)
  */
 public final class PushMessageHandler extends BaseMessageHandler<PushMessage> {
-    private final Logger logger = ClientConfig.I.getLogger();
-    private final ClientListener listener = ClientConfig.I.getClientListener();
+    private final Logger logger;
+    private final ClientListener listener;
+
+    public PushMessageHandler(ClientConfig clientConfig) {
+        logger = clientConfig.getLogger();
+        listener = clientConfig.getClientListener();
+    }
 
     @Override
     public PushMessage decode(Packet packet, Connection connection) {

@@ -34,7 +34,13 @@ import com.mpush.api.protocol.Packet;
  * @author ohun@live.cn (夜色)
  */
 public final class ErrorMessageHandler extends BaseMessageHandler<ErrorMessage> {
-    private final Logger logger = ClientConfig.I.getLogger();
+    private final ClientConfig clientConfig;
+    private final Logger logger;
+
+    public ErrorMessageHandler(ClientConfig clientConfig) {
+        this.clientConfig = clientConfig;
+        this.logger = clientConfig.getLogger();
+    }
 
     @Override
     public ErrorMessage decode(Packet packet, Connection connection) {
@@ -45,7 +51,7 @@ public final class ErrorMessageHandler extends BaseMessageHandler<ErrorMessage> 
     public void handle(ErrorMessage message) {
         logger.w(">>> receive an error message=%s", message);
         if (message.cmd == Command.FAST_CONNECT.cmd) {
-            ClientConfig.I.getSessionStorage().clearSession();
+            clientConfig.getSessionStorage().clearSession();
             message.getConnection().getClient().handshake();
         } else if (message.cmd == Command.HANDSHAKE.cmd) {
             message.getConnection().getClient().stop();
