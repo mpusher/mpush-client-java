@@ -20,7 +20,6 @@
 package com.mpush.message;
 
 
-
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
@@ -66,7 +65,8 @@ public final class FastConnectMessage extends ByteBufMessage {
     @Override
     public String toString() {
         return "FastConnectMessage{" +
-                "sessionId='" + sessionId + '\'' +
+                "sessionId=" + packet.sessionId +
+                ", sessionId='" + sessionId + '\'' +
                 ", deviceId='" + deviceId + '\'' +
                 ", minHeartbeat=" + minHeartbeat +
                 ", maxHeartbeat=" + maxHeartbeat +
