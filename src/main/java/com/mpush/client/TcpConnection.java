@@ -52,9 +52,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public final class TcpConnection implements Connection {
     public enum State {connecting, connected, disconnecting, disconnected}
 
-    private final AtomicReference<State> state = new AtomicReference(disconnected);
+    private final AtomicReference<State> state = new AtomicReference<>(disconnected);
     private final EventLock connLock = new EventLock();
-    private final ClientConfig config;
     private final Logger logger;
     private final ClientListener listener;
     private final MPushClient client;
@@ -71,8 +70,8 @@ public final class TcpConnection implements Connection {
     private volatile boolean autoConnect = true;
 
     public TcpConnection(MPushClient client, PacketReceiver receiver) {
+        ClientConfig config = ClientConfig.I;
         this.client = client;
-        this.config = ClientConfig.I;
         this.logger = config.getLogger();
         this.listener = config.getClientListener();
         this.allotClient = new AllotClient();
