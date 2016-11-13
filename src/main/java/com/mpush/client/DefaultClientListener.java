@@ -57,6 +57,7 @@ import java.util.concurrent.Executor;
                 }
             });
         }
+        AckRequestMgr.I().clear();
     }
 
     @Override

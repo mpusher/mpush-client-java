@@ -42,6 +42,7 @@ public final class MessageDispatcher implements PacketReceiver {
     private final Executor executor = ExecutorManager.INSTANCE.getDispatchThread();
     private final Map<Byte, MessageHandler> handlers = new HashMap<>();
     private final Logger logger = ClientConfig.I.getLogger();
+    private final AckRequestMgr ackRequestMgr;
 
     public MessageDispatcher() {
         register(Command.HEARTBEAT, new HeartbeatHandler());
@@ -51,6 +52,7 @@ public final class MessageDispatcher implements PacketReceiver {
         register(Command.OK, new OkMessageHandler());
         register(Command.ERROR, new ErrorMessageHandler());
         register(Command.PUSH, new PushMessageHandler());
+        this.ackRequestMgr = AckRequestMgr.I();
     }
 
     public void register(Command command, MessageHandler handler) {
@@ -65,6 +67,7 @@ public final class MessageDispatcher implements PacketReceiver {
                 @Override
                 public void run() {
                     try {
+                        doAckResponse(packet);
                         handler.handle(packet, connection);
                     } catch (Throwable throwable) {
                         logger.e(throwable, "handle message error, packet=%s", packet);
@@ -75,6 +78,13 @@ public final class MessageDispatcher implements PacketReceiver {
         } else {
             logger.w("<<< receive unsupported message, do reconnect, packet=%s", packet);
             connection.reconnect();
+        }
+    }
+
+    private void doAckResponse(Packet packet) {
+        AckRequestMgr.RequestTask task = ackRequestMgr.getAndRemove(packet.sessionId);
+        if (task != null) {
+            task.success(packet);
         }
     }
 }

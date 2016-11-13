@@ -31,7 +31,7 @@ public class AckContext {
     public AckModel ackModel = AckModel.AUTO_ACK;
     public int timeout = 1000;
     public Packet request;
-    public int retryCount = 1;
+    public int retryCount;
 
     public static AckContext build(AckCallback callback) {
         AckContext context = new AckContext();

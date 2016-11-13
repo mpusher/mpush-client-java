@@ -33,6 +33,7 @@ public abstract class BaseMessageHandler<T extends Message> implements MessageHa
     public void handle(Packet packet, Connection connection) {
         T t = decode(packet, connection);
         if (t != null) {
+            t.decodeBody();
             handle(t);
         }
     }

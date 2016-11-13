@@ -32,6 +32,10 @@ public interface Message {
 
     Connection getConnection();
 
+    void decodeBody();
+
+    void encodeBody();
+
     void send();
 
     void sendRaw();

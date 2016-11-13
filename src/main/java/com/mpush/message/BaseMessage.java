@@ -20,7 +20,6 @@
 package com.mpush.message;
 
 
-
 import com.mpush.util.IOUtils;
 import com.mpush.client.ClientConfig;
 import com.mpush.api.Message;
@@ -36,17 +35,23 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author ohun@live.cn (夜色)
  */
 public abstract class BaseMessage implements Message {
+    public static final int STATUS_DECODED = 1;
+    public static final int STATUS_ENCODED = 2;
     private static final AtomicInteger SID_SEQ = new AtomicInteger();
     protected final Packet packet;
     protected final Connection connection;
+    protected int status = 0;
 
     public BaseMessage(Packet packet, Connection connection) {
         this.packet = packet;
         this.connection = connection;
-        this.decodeBody();
     }
 
-    protected void decodeBody() {
+    @Override
+    public void decodeBody() {
+        if ((status & STATUS_DECODED) != 0) return;
+        else status |= STATUS_DECODED;
+
         if (packet.body != null && packet.body.length > 0) {
             //1.解密
             byte[] tmp = packet.body;
@@ -70,7 +75,11 @@ public abstract class BaseMessage implements Message {
         }
     }
 
-    protected void encodeBody() {
+    @Override
+    public void encodeBody() {
+        if ((status & STATUS_ENCODED) != 0) return;
+        else status |= STATUS_ENCODED;
+
         byte[] tmp = encode();
         if (tmp != null && tmp.length > 0) {
             //1.压缩
@@ -93,6 +102,13 @@ public abstract class BaseMessage implements Message {
             }
             packet.body = tmp;
         }
+    }
+
+    private void encodeBodyRaw() {
+        if ((status & STATUS_ENCODED) != 0) return;
+        else status |= STATUS_ENCODED;
+
+        packet.body = encode();
     }
 
     protected abstract void decode(byte[] body);
@@ -121,7 +137,7 @@ public abstract class BaseMessage implements Message {
 
     @Override
     public void sendRaw() {
-        packet.body = encode();
+        encodeBodyRaw();
         connection.send(packet);
     }
 

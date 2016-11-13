@@ -22,6 +22,8 @@ package com.mpush.client;
 
 import com.mpush.api.Client;
 import com.mpush.api.Logger;
+import com.mpush.api.ack.AckCallback;
+import com.mpush.api.ack.AckContext;
 import com.mpush.api.connection.SessionContext;
 import com.mpush.api.connection.SessionStorage;
 import com.mpush.api.http.HttpRequest;
@@ -48,34 +50,34 @@ import static com.mpush.api.Constants.MAX_HB_TIMEOUT_COUNT;
  *
  * @author ohun@live.cn (夜色)
  */
-/*package*/final class MPushClient implements Client {
+/*package*/final class MPushClient implements Client, AckCallback {
+
     private enum State {Started, Shutdown, Destroyed}
 
     private final AtomicReference<State> clientState = new AtomicReference<>(State.Shutdown);
 
-    private final MessageDispatcher receiver;
     private final TcpConnection connection;
     private final ClientConfig config;
     private final Logger logger;
     private int hbTimeoutTimes;
 
-    private HttpRequestQueue httpRequestQueue;
-    private AckMessageQueue ackMessageQueue;
+    private AckRequestMgr ackRequestMgr;
+    private HttpRequestMgr httpRequestMgr;
 
     /*package*/ MPushClient(ClientConfig config) {
         this.config = config;
         this.logger = config.getLogger();
-        this.receiver = new MessageDispatcher();
-        this.connection = new TcpConnection(this, receiver);
+
+        MessageDispatcher receiver = new MessageDispatcher();
+
         if (config.isEnableHttpProxy()) {
-            this.httpRequestQueue = new HttpRequestQueue();
-            this.receiver.register(Command.HTTP_PROXY, new HttpProxyHandler(httpRequestQueue));
+            this.httpRequestMgr = HttpRequestMgr.I();
+            receiver.register(Command.HTTP_PROXY, new HttpProxyHandler());
         }
 
-        if (config.isEnableClientPush()) {
-            this.ackMessageQueue = new AckMessageQueue();
-            this.receiver.register(Command.ACK, new AckHandler(ackMessageQueue));
-        }
+        this.ackRequestMgr = AckRequestMgr.I();
+        this.connection = new TcpConnection(this, receiver);
+        this.ackRequestMgr.setConnection(this.connection);
     }
 
     @Override
@@ -164,9 +166,16 @@ import static com.mpush.api.Constants.MAX_HB_TIMEOUT_COUNT;
         message.sessionId = session.sessionId;
         message.maxHeartbeat = config.getMaxHeartbeat();
         message.minHeartbeat = config.getMinHeartbeat();
+        message.encodeBody();
+        ackRequestMgr.add(message.getSessionId(), AckContext
+                .build(this)
+                .setRequest(message.getPacket())
+                .setTimeout(1000)
+                .setRetryCount(3)
+        );
+        logger.w("<<< do fast connect, message=%s", message);
         message.sendRaw();
         connection.getSessionContext().changeCipher(session.cipher);
-        logger.w("<<< do fast connect, message=%s", message);
     }
 
     @Override
@@ -182,13 +191,20 @@ import static com.mpush.api.Constants.MAX_HB_TIMEOUT_COUNT;
         message.clientVersion = config.getClientVersion();
         message.maxHeartbeat = config.getMaxHeartbeat();
         message.minHeartbeat = config.getMinHeartbeat();
+        message.encodeBody();
+        ackRequestMgr.add(message.getSessionId(), AckContext
+                .build(this)
+                .setTimeout(1000)
+                .setRequest(message.getPacket())
+                .setRetryCount(3)
+        );
+        logger.w("<<< do handshake, message=%s", message);
         message.send();
         context.changeCipher(new AesCipher(message.clientKey, message.iv));
-        logger.w("<<< do handshake, message=%s", message);
     }
 
     @Override
-    public void bindUser(String userId, String tags) {
+    public void bindUser(final String userId, final String tags) {
         if (Strings.isBlank(userId)) {
             logger.w("bind user is null");
             return;
@@ -203,12 +219,20 @@ import static com.mpush.api.Constants.MAX_HB_TIMEOUT_COUNT;
         }
         context.setBindUser(userId).setTags(tags);
         config.setUserId(userId).setTags(tags);
-        BindUserMessage
+        BindUserMessage message = BindUserMessage
                 .buildBind(connection)
                 .setUserId(userId)
-                .setTags(tags)
-                .send();
+                .setTags(tags);
+        message.encodeBody();
+        ackRequestMgr.add(message.getSessionId(), AckContext
+                .build(this)
+                .setTimeout(3000)
+                .setRequest(message.getPacket())
+                .setRetryCount(5)
+        );
         logger.w("<<< do bind user, userId=%s", userId);
+        message.send();
+
     }
 
     @Override
@@ -243,7 +267,7 @@ import static com.mpush.api.Constants.MAX_HB_TIMEOUT_COUNT;
             message.addFlag(context.ackModel.flag);
             message.send();
             logger.d("<<< send push message=%s", message);
-            return ackMessageQueue.add(message.getSessionId(), context);
+            return ackRequestMgr.add(message.getSessionId(), context);
         }
         return null;
     }
@@ -258,8 +282,18 @@ import static com.mpush.api.Constants.MAX_HB_TIMEOUT_COUNT;
             message.body = request.getBody();
             message.send();
             logger.d("<<< send http proxy, request=%s", request);
-            return httpRequestQueue.add(message.getSessionId(), request);
+            return httpRequestMgr.add(message.getSessionId(), request);
         }
         return null;
+    }
+
+    @Override
+    public void onSuccess(Packet response) {
+
+    }
+
+    @Override
+    public void onTimeout(Packet request) {
+        this.connection.reconnect();
     }
 }
