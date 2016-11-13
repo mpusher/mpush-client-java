@@ -20,7 +20,6 @@
 package com.mpush.message;
 
 
-
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
@@ -82,7 +81,8 @@ public final class HandshakeMessage extends ByteBufMessage {
     @Override
     public String toString() {
         return "HandshakeMessage{" +
-                "deviceId='" + deviceId + '\'' +
+                "sessionId=" + packet.sessionId +
+                ", deviceId='" + deviceId + '\'' +
                 ", osName='" + osName + '\'' +
                 ", osVersion='" + osVersion + '\'' +
                 ", clientVersion='" + clientVersion + '\'' +
