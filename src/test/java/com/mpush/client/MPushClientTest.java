@@ -108,7 +108,7 @@ public class MPushClientTest {
                 }
             }, heartbeat, heartbeat, TimeUnit.MILLISECONDS);
 
-            client.push(PushContext.build("test"));
+            //client.push(PushContext.build("test"));
 
         }
 
