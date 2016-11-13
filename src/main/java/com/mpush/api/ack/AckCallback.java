@@ -17,22 +17,17 @@
  *     ohun@live.cn (夜色)
  */
 
-package com.mpush.api.push;
+package com.mpush.api.ack;
 
 import com.mpush.api.protocol.Packet;
 
 /**
- * Created by ohun on 16/9/6.
+ * Created by ohun on 2016/11/13.
  *
  * @author ohun@live.cn (夜色)
  */
-public enum AckModel {
-    NO_ACK((byte) 0),//不需要ACK
-    AUTO_ACK(Packet.FLAG_AUTO_ACK),//客户端收到消息后自动确认消息
-    BIZ_ACK(Packet.FLAG_BIZ_ACK);//由客户端业务自己确认消息是否到达
-    public final byte flag;
+public interface AckCallback {
+    void onSuccess(Packet response);
 
-    AckModel(byte flag) {
-        this.flag = flag;
-    }
+    void onTimeout(Packet request);
 }

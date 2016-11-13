@@ -22,8 +22,8 @@ package com.mpush.handler;
 import com.mpush.api.Logger;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
-import com.mpush.client.AckMessageQueue;
 import com.mpush.client.ClientConfig;
+import com.mpush.client.AckRequestMgr;
 import com.mpush.message.AckMessage;
 
 /**
@@ -33,13 +33,12 @@ import com.mpush.message.AckMessage;
  */
 public class AckHandler extends BaseMessageHandler<AckMessage> {
 
-    private AckMessageQueue ackMessageQueue;
+    private final Logger logger;
+    private final AckRequestMgr ackRequestMgr;
 
-    private Logger logger;
-
-    public AckHandler(AckMessageQueue ackMessageQueue) {
-        this.ackMessageQueue = ackMessageQueue;
+    public AckHandler() {
         this.logger = ClientConfig.I.getLogger();
+        this.ackRequestMgr = AckRequestMgr.I();
     }
 
     @Override
@@ -49,11 +48,9 @@ public class AckHandler extends BaseMessageHandler<AckMessage> {
 
     @Override
     public void handle(AckMessage message) {
-        AckMessageQueue.PushTask task = ackMessageQueue.getAndRemove(message.getSessionId());
-        if (task == null) {
-            logger.w("receive server ack, but timeout message={}", message);
-            return;
+        AckRequestMgr.RequestTask task = ackRequestMgr.getAndRemove(message.getSessionId());
+        if (task != null) {
+            task.success(message.getPacket());
         }
-        task.success();
     }
 }
