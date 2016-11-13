@@ -20,11 +20,10 @@
 package com.mpush.handler;
 
 
-
 import com.mpush.api.connection.Connection;
 import com.mpush.api.http.HttpResponse;
 import com.mpush.api.protocol.Packet;
-import com.mpush.client.HttpRequestQueue;
+import com.mpush.client.HttpRequestMgr;
 import com.mpush.api.Logger;
 import com.mpush.client.ClientConfig;
 import com.mpush.message.HttpResponseMessage;
@@ -36,10 +35,10 @@ import com.mpush.message.HttpResponseMessage;
  */
 public final class HttpProxyHandler extends BaseMessageHandler<HttpResponseMessage> {
     private final Logger logger = ClientConfig.I.getLogger();
-    private final HttpRequestQueue queue;
+    private final HttpRequestMgr httpRequestMgr;
 
-    public HttpProxyHandler(HttpRequestQueue queue) {
-        this.queue = queue;
+    public HttpProxyHandler() {
+        this.httpRequestMgr = HttpRequestMgr.I();
     }
 
     @Override
@@ -49,7 +48,7 @@ public final class HttpProxyHandler extends BaseMessageHandler<HttpResponseMessa
 
     @Override
     public void handle(HttpResponseMessage message) {
-        HttpRequestQueue.RequestTask task = queue.getAndRemove(message.getSessionId());
+        HttpRequestMgr.RequestTask task = httpRequestMgr.getAndRemove(message.getSessionId());
         if (task != null) {
             HttpResponse response = new HttpResponse(message.statusCode, message.reasonPhrase, message.headers, message.body);
             task.setResponse(response);

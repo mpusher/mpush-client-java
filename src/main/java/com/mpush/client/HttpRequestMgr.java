@@ -43,7 +43,8 @@ import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
  *
  * @author ohun@live.cn
  */
-public final class HttpRequestQueue {
+public final class HttpRequestMgr {
+    private static HttpRequestMgr I;
     private final Map<Integer, RequestTask> queue = new ConcurrentHashMap<>();
     private final ScheduledExecutorService timer = ExecutorManager.INSTANCE.getHttpRequestThread();
     private final Executor executor = ExecutorManager.INSTANCE.getDispatchThread();
@@ -56,6 +57,20 @@ public final class HttpRequestQueue {
         }
     };
     private final Logger logger = ClientConfig.I.getLogger();
+
+    public static HttpRequestMgr I() {
+        if (I == null) {
+            synchronized (AckRequestMgr.class) {
+                if (I == null) {
+                    I = new HttpRequestMgr();
+                }
+            }
+        }
+        return I;
+    }
+
+    private HttpRequestMgr() {
+    }
 
     public Future<HttpResponse> add(int sessionId, HttpRequest request) {
         RequestTask task = new RequestTask(sessionId, request);
