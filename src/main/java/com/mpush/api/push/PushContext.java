@@ -20,17 +20,16 @@
 package com.mpush.api.push;
 
 import com.mpush.api.Constants;
+import com.mpush.api.ack.AckContext;
+import com.mpush.api.ack.AckModel;
 
 /**
  * Created by ohun on 16/10/13.
  *
  * @author ohun@live.cn (夜色)
  */
-public final class PushContext {
+public final class PushContext extends AckContext {
     public byte[] content;
-    public AckModel ackModel = AckModel.NO_ACK;
-    public PushCallback callback;
-    public int timeout = 1000;
 
     public PushContext(byte[] content) {
         this.content = content;
@@ -59,24 +58,6 @@ public final class PushContext {
 
     public PushContext setAckModel(AckModel ackModel) {
         this.ackModel = ackModel;
-        return this;
-    }
-
-    public PushCallback getCallback() {
-        return callback;
-    }
-
-    public PushContext setCallback(PushCallback callback) {
-        this.callback = callback;
-        return this;
-    }
-
-    public int getTimeout() {
-        return timeout;
-    }
-
-    public PushContext setTimeout(int timeout) {
-        this.timeout = timeout;
         return this;
     }
 }
