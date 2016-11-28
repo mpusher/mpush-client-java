@@ -96,11 +96,11 @@ public final class AckRequestMgr {
     }
 
     public final class RequestTask extends FutureTask<Boolean> implements Runnable {
-        private AckCallback callback;
         private final int timeout;
         private final long sendTime;
         private final int sessionId;
-        private final Packet request;
+        private AckCallback callback;
+        private Packet request;
         private Future<?> future;
         private int retryCount;
 
@@ -161,6 +161,7 @@ public final class AckRequestMgr {
                     }
                 }
                 callback = null;
+                request = null;
             }
         }
 
