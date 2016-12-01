@@ -115,6 +115,12 @@ import static com.mpush.api.Constants.MAX_HB_TIMEOUT_COUNT;
     }
 
     @Override
+    public void onNetStateChange(boolean isConnected) {
+        connection.setAutoConnect(isConnected);
+        if (isConnected) connection.connect();
+    }
+
+    @Override
     public boolean healthCheck() {
 
         if (connection.isReadTimeout()) {

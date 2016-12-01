@@ -37,4 +37,6 @@ public interface Client extends MPushProtocol {
 
     boolean isRunning();
 
+    void onNetStateChange(boolean isConnected);
+
 }
