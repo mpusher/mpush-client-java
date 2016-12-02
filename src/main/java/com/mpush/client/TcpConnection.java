@@ -262,6 +262,16 @@ public final class TcpConnection implements Connection {
     }
 
     @Override
+    public void resetTimeout() {
+        lastReadTime = lastWriteTime = 0;
+    }
+
+    @Override
+    public boolean isAutoConnect() {
+        return autoConnect;
+    }
+
+    @Override
     public SessionContext getSessionContext() {
         return context;
     }

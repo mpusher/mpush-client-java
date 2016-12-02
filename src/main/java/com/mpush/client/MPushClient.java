@@ -31,7 +31,6 @@ import com.mpush.api.http.HttpResponse;
 import com.mpush.api.protocol.Command;
 import com.mpush.api.protocol.Packet;
 import com.mpush.api.push.PushContext;
-import com.mpush.handler.AckHandler;
 import com.mpush.handler.HttpProxyHandler;
 import com.mpush.message.*;
 import com.mpush.security.AesCipher;
@@ -41,6 +40,8 @@ import com.mpush.util.Strings;
 import com.mpush.util.thread.ExecutorManager;
 
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.mpush.api.Constants.MAX_HB_TIMEOUT_COUNT;
@@ -114,10 +115,47 @@ import static com.mpush.api.Constants.MAX_HB_TIMEOUT_COUNT;
         return clientState.get() == State.Started && connection.isConnected();
     }
 
+    /**
+     * 这个方法主要用于解决网络十分不稳定的场景：
+     * 正常情况如果网络断开，就应该关闭连接，反之则应去建立连接
+     * 但是在网络抖动厉害时就会发生连接频繁的建立／断开。
+     * <p>
+     * 处理这种场景的其中一个方案是：
+     * 当网络断开时不主动关闭连接，而是尝试发送一次心跳检测，
+     * 如果能收到响应，说明网络短时间内又恢复了，
+     * 否则就断开连接，等待网络恢复并重建连接。
+     *
+     * @param isConnected true/false
+     */
     @Override
     public void onNetStateChange(boolean isConnected) {
         connection.setAutoConnect(isConnected);
-        if (isConnected) connection.connect();
+
+        if (isConnected) { //当有网络时，去尝试重连
+            connection.connect();
+        } else if (connection.isConnected()) { //无网络，如果连接没有断开，尝试发送一次心跳检测，用于快速校验网络状况
+            connection.resetTimeout();//心跳检测前，重置上次读写数据包的时间戳
+            hbTimeoutTimes = MAX_HB_TIMEOUT_COUNT - 2;//总共要调用两次healthCheck，第一次用于发送心跳，第二次用于检测是否超时
+            final ScheduledExecutorService timer = ExecutorManager.INSTANCE.getTimerThread();
+
+            //隔3s后发送一次心跳检测，看能不能收到服务端的响应
+            timer.schedule(new Runnable() {
+                int checkCount = 0;
+
+                @Override
+                public void run() {
+                    //如果期间连接状态发生变化，取消任务
+                    if (connection.isAutoConnect() || !connection.isConnected()) return;
+
+                    if (++checkCount <= 2) {
+                        if (healthCheck() && checkCount < 2) {
+                            timer.schedule(this, 3, TimeUnit.SECONDS);
+                        }
+                    }
+                }
+
+            }, 3, TimeUnit.SECONDS);
+        }
     }
 
     @Override

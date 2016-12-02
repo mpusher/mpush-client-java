@@ -40,12 +40,12 @@ public final class ExecutorManager {
     public static final String READ_THREAD_NAME = THREAD_NAME_PREFIX + "read-t";
     public static final String DISPATCH_THREAD_NAME = THREAD_NAME_PREFIX + "dispatch-t";
     public static final String START_THREAD_NAME = THREAD_NAME_PREFIX + "start-t";
-    public static final String HTTP_THREAD_NAME = THREAD_NAME_PREFIX + "http-t";
+    public static final String TIMER_THREAD_NAME = THREAD_NAME_PREFIX + "timer-t";
     public static final ExecutorManager INSTANCE = new ExecutorManager();
     private ThreadPoolExecutor writeThread;
     private ThreadPoolExecutor dispatchThread;
     private ThreadPoolExecutor startThread;
-    private ScheduledExecutorService httpRequestThread;
+    private ScheduledExecutorService timerThread;
 
     public ThreadPoolExecutor getWriteThread() {
         if (writeThread == null || writeThread.isShutdown()) {
@@ -80,13 +80,13 @@ public final class ExecutorManager {
         return startThread;
     }
 
-    public ScheduledExecutorService getHttpRequestThread() {
-        if (httpRequestThread == null || httpRequestThread.isShutdown()) {
-            httpRequestThread = new ScheduledThreadPoolExecutor(1,
-                    new NamedThreadFactory(HTTP_THREAD_NAME),
+    public ScheduledExecutorService getTimerThread() {
+        if (timerThread == null || timerThread.isShutdown()) {
+            timerThread = new ScheduledThreadPoolExecutor(1,
+                    new NamedThreadFactory(TIMER_THREAD_NAME),
                     new RejectedHandler());
         }
-        return httpRequestThread;
+        return timerThread;
     }
 
     public synchronized void shutdown() {
@@ -103,9 +103,9 @@ public final class ExecutorManager {
             startThread = null;
 
         }
-        if (httpRequestThread != null) {
-            httpRequestThread.shutdownNow();
-            httpRequestThread = null;
+        if (timerThread != null) {
+            timerThread.shutdownNow();
+            timerThread = null;
         }
     }
 

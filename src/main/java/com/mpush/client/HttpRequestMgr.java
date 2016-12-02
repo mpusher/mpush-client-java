@@ -36,7 +36,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static java.net.HttpURLConnection.HTTP_CLIENT_TIMEOUT;
-import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 
 /**
  * Created by yxx on 2016/2/16.
@@ -46,7 +45,7 @@ import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 public final class HttpRequestMgr {
     private static HttpRequestMgr I;
     private final Map<Integer, RequestTask> queue = new ConcurrentHashMap<>();
-    private final ScheduledExecutorService timer = ExecutorManager.INSTANCE.getHttpRequestThread();
+    private final ScheduledExecutorService timer = ExecutorManager.INSTANCE.getTimerThread();
     private final Executor executor = ExecutorManager.INSTANCE.getDispatchThread();
     //private final HttpResponse response404 = new HttpResponse(HTTP_NOT_FOUND, "Not Found", null, null);
     private final HttpResponse response408 = new HttpResponse(HTTP_CLIENT_TIMEOUT, "Request Timeout", null, null);

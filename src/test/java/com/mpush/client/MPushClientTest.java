@@ -106,7 +106,7 @@ public class MPushClientTest {
                 public void run() {
                     client.healthCheck();
                 }
-            }, heartbeat, heartbeat, TimeUnit.MILLISECONDS);
+            }, 10, 10, TimeUnit.SECONDS);
 
             //client.push(PushContext.build("test"));
 

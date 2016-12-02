@@ -41,7 +41,7 @@ public final class AckRequestMgr {
     private final Logger logger = ClientConfig.I.getLogger();
 
     private final Map<Integer, RequestTask> queue = new ConcurrentHashMap<>();
-    private final ScheduledExecutorService timer = ExecutorManager.INSTANCE.getHttpRequestThread();
+    private final ScheduledExecutorService timer = ExecutorManager.INSTANCE.getTimerThread();
     private final Callable<Boolean> NONE = new Callable<Boolean>() {
         @Override
         public Boolean call() throws Exception {

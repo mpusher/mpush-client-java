@@ -20,7 +20,6 @@
 package com.mpush.api.connection;
 
 
-
 import com.mpush.api.Client;
 import com.mpush.api.protocol.Packet;
 
@@ -52,6 +51,10 @@ public interface Connection {
     void setLastReadTime();
 
     void setLastWriteTime();
+
+    void resetTimeout();
+
+    boolean isAutoConnect();
 
     SocketChannel getChannel();
 
