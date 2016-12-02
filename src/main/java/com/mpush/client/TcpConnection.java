@@ -283,7 +283,14 @@ public final class TcpConnection implements Connection {
 
     @Override
     public String toString() {
-        return "TcpConnection{" + ", lastReadTime=" + lastReadTime + ", lastWriteTime=" + lastWriteTime + ", context="
-                + context + '}';
+        return "TcpConnection{" +
+                "state=" + state +
+                ", channel=" + channel +
+                ", lastReadTime=" + lastReadTime +
+                ", lastWriteTime=" + lastWriteTime +
+                ", totalReconnectCount=" + totalReconnectCount +
+                ", reconnectCount=" + reconnectCount +
+                ", autoConnect=" + autoConnect +
+                '}';
     }
 }
