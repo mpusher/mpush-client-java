@@ -130,7 +130,7 @@ import static com.mpush.api.Constants.MAX_HB_TIMEOUT_COUNT;
     @Override
     public void onNetStateChange(boolean isConnected) {
         connection.setAutoConnect(isConnected);
-
+        logger.i("network state change, isConnected=%b, connection=%s", isConnected, connection);
         if (isConnected) { //当有网络时，去尝试重连
             connection.connect();
         } else if (connection.isConnected()) { //无网络，如果连接没有断开，尝试发送一次心跳检测，用于快速校验网络状况
@@ -144,6 +144,7 @@ import static com.mpush.api.Constants.MAX_HB_TIMEOUT_COUNT;
 
                 @Override
                 public void run() {
+                    logger.w("network disconnected, try test tcp connection checkCount=%d, connection=%s", checkCount, connection);
                     //如果期间连接状态发生变化，取消任务
                     if (connection.isAutoConnect() || !connection.isConnected()) return;
 
