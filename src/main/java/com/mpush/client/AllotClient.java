@@ -35,6 +35,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static com.mpush.api.Constants.DEFAULT_SO_TIMEOUT;
+
 /**
  * Created by yxx on 2016/6/8.
  *
@@ -65,8 +67,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
         try {
             URL url = new URL(config.getAllotServer());
             connection = (HttpURLConnection) url.openConnection();
-            connection.setConnectTimeout(3000);
-            connection.setReadTimeout(3000);
+            connection.setConnectTimeout(DEFAULT_SO_TIMEOUT);
+            connection.setReadTimeout(DEFAULT_SO_TIMEOUT);
             connection.setUseCaches(false);
             connection.setDoInput(true);
             connection.setDoOutput(false);

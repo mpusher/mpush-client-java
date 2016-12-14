@@ -30,6 +30,8 @@ import java.nio.charset.Charset;
 public interface Constants {
     Charset UTF_8 = Charset.forName("UTF-8");
 
+    int DEFAULT_SO_TIMEOUT = 1000 * 3;//客户端连接超时时间
+
     int DEFAULT_WRITE_TIMEOUT = 1000 * 10;//10s默认packet写超时
 
     byte[] EMPTY_BYTES = new byte[0];
