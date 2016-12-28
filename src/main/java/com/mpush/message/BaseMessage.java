@@ -35,12 +35,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author ohun@live.cn (夜色)
  */
 public abstract class BaseMessage implements Message {
-    public static final int STATUS_DECODED = 1;
-    public static final int STATUS_ENCODED = 2;
+    public static final byte STATUS_DECODED = 1;
+    public static final byte STATUS_ENCODED = 2;
     private static final AtomicInteger SID_SEQ = new AtomicInteger();
     protected final Packet packet;
     protected final Connection connection;
-    protected int status = 0;
+    protected byte status = 0;
 
     public BaseMessage(Packet packet, Connection connection) {
         this.packet = packet;

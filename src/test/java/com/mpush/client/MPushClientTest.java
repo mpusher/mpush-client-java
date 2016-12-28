@@ -22,7 +22,6 @@ package com.mpush.client;
 
 import com.mpush.api.Client;
 import com.mpush.api.ClientListener;
-import com.mpush.api.push.PushContext;
 import com.mpush.util.DefaultLogger;
 
 import java.util.concurrent.Executors;

@@ -44,7 +44,6 @@ public final class ExecutorManager {
     public static final ExecutorManager INSTANCE = new ExecutorManager();
     private ThreadPoolExecutor writeThread;
     private ThreadPoolExecutor dispatchThread;
-    private ThreadPoolExecutor startThread;
     private ScheduledExecutorService timerThread;
 
     public ThreadPoolExecutor getWriteThread() {
@@ -69,17 +68,6 @@ public final class ExecutorManager {
         return dispatchThread;
     }
 
-    public ThreadPoolExecutor getStartThread() {
-        if (startThread == null || startThread.isShutdown()) {
-            startThread = new ThreadPoolExecutor(1, 1,
-                    0L, TimeUnit.MILLISECONDS,
-                    new LinkedBlockingQueue<Runnable>(1),
-                    new NamedThreadFactory(START_THREAD_NAME),
-                    new RejectedHandler());
-        }
-        return startThread;
-    }
-
     public ScheduledExecutorService getTimerThread() {
         if (timerThread == null || timerThread.isShutdown()) {
             timerThread = new ScheduledThreadPoolExecutor(1,
@@ -98,11 +86,6 @@ public final class ExecutorManager {
             dispatchThread.shutdownNow();
             dispatchThread = null;
         }
-        if (startThread != null) {
-            startThread.shutdownNow();
-            startThread = null;
-
-        }
         if (timerThread != null) {
             timerThread.shutdownNow();
             timerThread = null;
@@ -117,7 +100,7 @@ public final class ExecutorManager {
 
         @Override
         public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-            ClientConfig.I.getLogger().w("a task was rejected execute=%s", executor);
+            ClientConfig.I.getLogger().w("a task was rejected r=%s", r);
         }
     }
 }
