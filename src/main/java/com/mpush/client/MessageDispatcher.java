@@ -52,6 +52,7 @@ public final class MessageDispatcher implements PacketReceiver {
         register(Command.OK, new OkMessageHandler());
         register(Command.ERROR, new ErrorMessageHandler());
         register(Command.PUSH, new PushMessageHandler());
+        register(Command.ACK, new AckHandler());
         this.ackRequestMgr = AckRequestMgr.I();
     }
 
@@ -76,8 +77,8 @@ public final class MessageDispatcher implements PacketReceiver {
                 }
             });
         } else {
-            logger.w("<<< receive unsupported message, do reconnect, packet=%s", packet);
-            connection.reconnect();
+            logger.w("<<< receive unsupported message, packet=%s", packet);
+            //connection.reconnect();
         }
     }
 
