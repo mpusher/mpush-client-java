@@ -53,6 +53,7 @@ public final class MessageDispatcher implements PacketReceiver {
         register(Command.ERROR, new ErrorMessageHandler());
         register(Command.PUSH, new PushMessageHandler());
         register(Command.ACK, new AckHandler());
+
         this.ackRequestMgr = AckRequestMgr.I();
     }
 
