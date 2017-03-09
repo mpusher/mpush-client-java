@@ -79,7 +79,7 @@ import static com.mpush.api.Constants.DEFAULT_SO_TIMEOUT;
                 return serverAddress;
             }
         } catch (IOException e) {
-            logger.e(e, "get server address ex, when connect server.");
+            logger.e(e, "get server address ex, when connect server. allot=%s", config.getAllotServer());
             return Collections.emptyList();
         }
 
