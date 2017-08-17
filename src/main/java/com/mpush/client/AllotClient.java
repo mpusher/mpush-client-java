@@ -24,16 +24,19 @@ import com.mpush.api.Constants;
 import com.mpush.api.Logger;
 import com.mpush.util.IOUtils;
 
+import javax.net.ssl.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.mpush.api.Constants.DEFAULT_SO_TIMEOUT;
 
@@ -67,6 +70,10 @@ import static com.mpush.api.Constants.DEFAULT_SO_TIMEOUT;
         try {
             URL url = new URL(config.getAllotServer());
             connection = (HttpURLConnection) url.openConnection();
+            if (config.getAllotServer().startsWith("https")) {
+                ((HttpsURLConnection) connection).setSSLSocketFactory(getSSLSocketFactory());
+                ((HttpsURLConnection) connection).setHostnameVerifier(new NullHostnameVerifier());
+            }
             connection.setConnectTimeout(DEFAULT_SO_TIMEOUT);
             connection.setReadTimeout(DEFAULT_SO_TIMEOUT);
             connection.setUseCaches(false);
@@ -78,7 +85,7 @@ import static com.mpush.api.Constants.DEFAULT_SO_TIMEOUT;
                 connection.disconnect();
                 return serverAddress;
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.e(e, "get server address ex, when connect server. allot=%s", config.getAllotServer());
             return Collections.emptyList();
         }
@@ -105,14 +112,49 @@ import static com.mpush.api.Constants.DEFAULT_SO_TIMEOUT;
             String result = new String(content, Constants.UTF_8);
             logger.w("get server address success result=%s", result);
             List<String> serverAddress = new ArrayList<>();
-            for (String s : result.split(",")) {
-                serverAddress.add(s);
-            }
+            serverAddress.addAll(Arrays.asList(result.split(",")));
             this.serverAddress = serverAddress;
         } else {
             logger.w("get server address failure return content empty.");
         }
 
         return serverAddress;
+    }
+
+    private SSLSocketFactory getSSLSocketFactory() {
+        return getTrustAllContext().getSocketFactory();
+    }
+
+    private SSLContext getTrustAllContext() {
+        SSLContext sslContext = null;
+        try {
+            sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, new TrustManager[]{new TrustAnyTrustManager()}, new SecureRandom());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return sslContext;
+    }
+
+    private static class TrustAnyTrustManager implements X509TrustManager {
+        public void checkClientTrusted(X509Certificate[] chain, String authType)
+                throws CertificateException {
+        }
+
+        public void checkServerTrusted(X509Certificate[] chain, String authType)
+                throws CertificateException {
+        }
+
+        public X509Certificate[] getAcceptedIssuers() {
+            return new X509Certificate[0];
+        }
+    }
+
+    private static class NullHostnameVerifier implements HostnameVerifier {
+
+        @Override
+        public boolean verify(String s, SSLSession sslSession) {
+            return true;
+        }
     }
 }

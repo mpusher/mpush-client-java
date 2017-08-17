@@ -24,6 +24,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * Created by ohun on 2016/1/25.
@@ -31,6 +32,19 @@ import java.util.Map;
  * @author ohun@live.cn (夜色)
  */
 public final class MPUtils {
+
+    /**
+     * Quick and dirty pattern to differentiate IP addresses from hostnames. This is an approximation
+     * of Android's private InetAddress#isNumeric API.
+     * <p>
+     * <p>This matches IPv6 addresses as a hex string containing at least one colon, and possibly
+     * including dots after the first colon. It matches IPv4 addresses as strings containing only
+     * decimal digits and dots. This pattern matches strings like "a:.23" and "54" that are neither IP
+     * addresses nor hostnames; they will be verified as IP addresses (which is a more strict
+     * verification).
+     */
+    private static final Pattern VERIFY_AS_IP_ADDRESS = Pattern.compile(
+            "([0-9a-fA-F]*:[0-9a-fA-F:.]*)|([\\d.]+)");
 
     public static String parseHost2Ip(String host) {
         InetAddress ia = null;
@@ -78,5 +92,12 @@ public final class MPUtils {
             headers.put(name, value);
         }
         return headers;
+    }
+
+    /**
+     * Returns true if {@code host} is not a host name and might be an IP address.
+     */
+    public static boolean verifyAsIpAddress(String host) {
+        return VERIFY_AS_IP_ADDRESS.matcher(host).matches();
     }
 }
