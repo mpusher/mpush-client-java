@@ -55,6 +55,10 @@ public final class ClientConfig {
     private Logger logger;
     private boolean logEnabled;
     private boolean enableHttpProxy = true;
+    private int handshakeTimeoutMills = 3000;
+    private int handshakeRetryCount = 0;
+    private int bindUserTimeoutMills = 3000;
+    private int bindUserRetryCount = 1;
 
     public static ClientConfig build() {
         return I = new ClientConfig();
@@ -255,5 +259,37 @@ public final class ClientConfig {
     public ClientConfig setTags(String tags) {
         this.tags = tags;
         return this;
+    }
+
+    public int getHandshakeTimeoutMills() {
+        return handshakeTimeoutMills;
+    }
+
+    public void setHandshakeTimeoutMills(int handshakeTimeoutMills) {
+        this.handshakeTimeoutMills = handshakeTimeoutMills;
+    }
+
+    public int getHandshakeRetryCount() {
+        return handshakeRetryCount;
+    }
+
+    public void setHandshakeRetryCount(int handshakeRetryCount) {
+        this.handshakeRetryCount = handshakeRetryCount;
+    }
+
+    public int getBindUserTimeoutMills() {
+        return bindUserTimeoutMills;
+    }
+
+    public void setBindUserTimeoutMills(int bindUserTimeoutMills) {
+        this.bindUserTimeoutMills = bindUserTimeoutMills;
+    }
+
+    public int getBindUserRetryCount() {
+        return bindUserRetryCount;
+    }
+
+    public void setBindUserRetryCount(int bindUserRetryCount) {
+        this.bindUserRetryCount = bindUserRetryCount;
     }
 }
