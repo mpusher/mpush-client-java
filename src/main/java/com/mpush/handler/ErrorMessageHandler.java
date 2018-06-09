@@ -20,13 +20,14 @@
 package com.mpush.handler;
 
 
-
+import com.mpush.api.Logger;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Command;
-import com.mpush.message.ErrorMessage;
-import com.mpush.client.ClientConfig;
-import com.mpush.api.Logger;
 import com.mpush.api.protocol.Packet;
+import com.mpush.client.ClientConfig;
+import com.mpush.message.ErrorMessage;
+
+import static com.mpush.api.protocol.ErrorCode.REPEAT_HANDSHAKE;
 
 /**
  * Created by ohun on 2015/12/30.
@@ -48,7 +49,10 @@ public final class ErrorMessageHandler extends BaseMessageHandler<ErrorMessage> 
             ClientConfig.I.getSessionStorage().clearSession();
             message.getConnection().getClient().handshake();
         } else if (message.cmd == Command.HANDSHAKE.cmd) {
-            message.getConnection().getClient().stop();
+            if (message.code != REPEAT_HANDSHAKE.errorCode //重复握手的错误消息直接忽略
+                    && !REPEAT_HANDSHAKE.errorMsg.equals(message.reason)) {
+                message.getConnection().getClient().stop();
+            }
         } else {
             message.getConnection().reconnect();
         }
