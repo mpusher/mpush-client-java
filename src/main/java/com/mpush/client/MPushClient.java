@@ -24,6 +24,8 @@ import com.mpush.api.Client;
 import com.mpush.api.Logger;
 import com.mpush.api.ack.AckCallback;
 import com.mpush.api.ack.AckContext;
+import com.mpush.api.ack.RetryCondition;
+import com.mpush.api.connection.Connection;
 import com.mpush.api.connection.SessionContext;
 import com.mpush.api.connection.SessionStorage;
 import com.mpush.api.http.HttpRequest;
@@ -279,6 +281,12 @@ import static com.mpush.api.Constants.MAX_HB_TIMEOUT_COUNT;
                 .setRequest(message.getPacket())
                 .setTimeout(config.getBindUserTimeoutMills())
                 .setRetryCount(config.getBindUserRetryCount())
+                .setRetryCondition(new RetryCondition() {
+                    @Override
+                    public boolean test(Connection connection, Packet packet) {
+                        return connection.getSessionContext().handshakeOk();
+                    }
+                })
         );
         logger.w("<<< do bind user, userId=%s", userId);
         message.send();

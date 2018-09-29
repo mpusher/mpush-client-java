@@ -32,6 +32,7 @@ public class AckContext {
     public int timeout = 1000;
     public Packet request;
     public int retryCount;
+    public RetryCondition retryCondition;
 
     public static AckContext build(AckCallback callback) {
         AckContext context = new AckContext();
@@ -81,6 +82,15 @@ public class AckContext {
 
     public AckContext setRetryCount(int retryCount) {
         this.retryCount = retryCount;
+        return this;
+    }
+
+    public RetryCondition getRetryCondition() {
+        return retryCondition;
+    }
+
+    public AckContext setRetryCondition(RetryCondition retryCondition) {
+        this.retryCondition = retryCondition;
         return this;
     }
 }

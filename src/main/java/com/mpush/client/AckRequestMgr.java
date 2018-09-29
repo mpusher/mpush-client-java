@@ -23,6 +23,7 @@ import com.mpush.api.Logger;
 import com.mpush.api.ack.AckCallback;
 import com.mpush.api.ack.AckContext;
 import com.mpush.api.ack.AckModel;
+import com.mpush.api.ack.RetryCondition;
 import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
 import com.mpush.util.thread.ExecutorManager;
@@ -103,8 +104,9 @@ public final class AckRequestMgr {
         private Packet request;
         private Future<?> future;
         private int retryCount;
+        private RetryCondition retryCondition;
 
-        private RequestTask(AckCallback callback, int timeout, int sessionId, Packet request, int retryCount) {
+        private RequestTask(AckCallback callback, int timeout, int sessionId, Packet request, int retryCount, RetryCondition retryCondition) {
             super(NONE);
             this.callback = callback;
             this.timeout = timeout;
@@ -112,10 +114,11 @@ public final class AckRequestMgr {
             this.sessionId = sessionId;
             this.request = request;
             this.retryCount = retryCount;
+            this.retryCondition = retryCondition;
         }
 
         private RequestTask(int sessionId, AckContext context) {
-            this(context.callback, context.timeout, sessionId, context.request, context.retryCount);
+            this(context.callback, context.timeout, sessionId, context.request, context.retryCount, context.retryCondition);
         }
 
         @Override
@@ -144,29 +147,32 @@ public final class AckRequestMgr {
                 if (callback != null) {
                     if (success) {
                         logger.d("receive one ack response, sessionId=%d, costTime=%d, request=%s, response=%s"
-                                , sessionId, (System.currentTimeMillis() - sendTime), request, response
-                        );
+                                , sessionId, (System.currentTimeMillis() - sendTime), request, response);
                         callback.onSuccess(response);
                     } else if (request != null && retryCount > 0) {
-                        logger.w("one ack request timeout, retry=%d, sessionId=%d, costTime=%d, request=%s"
-                                , retryCount, sessionId, (System.currentTimeMillis() - sendTime), request
-                        );
-                        addTask(copy(retryCount - 1));
-                        connection.send(request);
+                        if (retryCondition == null || retryCondition.test(connection, request)) {
+                            logger.w("one ack request timeout, retry=%d, sessionId=%d, costTime=%d, request=%s"
+                                    , retryCount, sessionId, (System.currentTimeMillis() - sendTime), request);
+                            addTask(copy(retryCount - 1));
+                            connection.send(request);
+                        } else {
+                            logger.w("one ack request timeout, but ignore by condition, retry=%d, sessionId=%d, costTime=%d, request=%s"
+                                    , retryCount, sessionId, (System.currentTimeMillis() - sendTime), request);
+                        }
                     } else {
                         logger.w("one ack request timeout, sessionId=%d, costTime=%d, request=%s"
-                                , sessionId, (System.currentTimeMillis() - sendTime), request
-                        );
+                                , sessionId, (System.currentTimeMillis() - sendTime), request);
                         callback.onTimeout(request);
                     }
                 }
                 callback = null;
                 request = null;
+                retryCondition = null;
             }
         }
 
         private RequestTask copy(int retryCount) {
-            return new RequestTask(callback, timeout, sessionId, request, retryCount);
+            return new RequestTask(callback, timeout, sessionId, request, retryCount, retryCondition);
         }
     }
 }

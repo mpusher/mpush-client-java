@@ -60,7 +60,7 @@ public class MPushClientTest {
             client = ClientConfig
                     .build()
                     .setPublicKey(publicKey)
-                    .setAllotServer(allocServer)
+                    //.setAllotServer(allocServer)
                     .setServerHost(serverHost)
                     .setServerPort(3000)
                     .setDeviceId("deviceId-test" + i)

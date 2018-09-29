@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2015-2016 the original author or authors.
+ * (C) Copyright 2015-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,46 +17,16 @@
  *     ohun@live.cn (夜色)
  */
 
-package com.mpush.api.connection;
+package com.mpush.api.ack;
 
-
-import com.mpush.api.Client;
+import com.mpush.api.connection.Connection;
 import com.mpush.api.protocol.Packet;
 
-import java.nio.channels.SocketChannel;
-
 /**
- * Created by ohun on 2015/12/22.
+ * Created by ohun on 18/9/29.
  *
  * @author ohun@live.cn (夜色)
  */
-public interface Connection {
-
-    void connect();
-
-    void close();
-
-    void reconnect();
-
-    void send(Packet packet);//TODO add send Listener
-
-    boolean isConnected();
-
-    boolean isAutoConnect();
-
-    boolean isReadTimeout();
-
-    boolean isWriteTimeout();
-
-    void setLastReadTime();
-
-    void setLastWriteTime();
-
-    void resetTimeout();
-
-    SessionContext getSessionContext();
-
-    SocketChannel getChannel();
-
-    Client getClient();
+public interface RetryCondition {
+    boolean test(Connection connection, Packet packet);
 }
